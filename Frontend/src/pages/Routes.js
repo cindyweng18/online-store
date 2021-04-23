@@ -1,6 +1,5 @@
 import React from "react";
-import { Switch, Route, Redirect } from "react-router-dom";
-import App from "../App";
+import { Switch, Route,} from "react-router-dom";
 import Windows from "./Windows";
 import {BrowserRouter} from "react-router-dom";
 import Home from "./Home";

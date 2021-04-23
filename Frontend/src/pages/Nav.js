@@ -8,34 +8,11 @@ const Nav = () => {
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Operating Systems
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" href="/windows">Windows</a></li>
-                  <li><a class="dropdown-item" href="#">macOs</a></li>
-                  <li><a class="dropdown-item" href="#">Linux</a></li>
-                </ul>
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/windows">Desktops</a>
               </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Main Purpose
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" href="#">Business</a></li>
-                  <li><a class="dropdown-item" href="#">Gaming</a></li>
-                  <li><a class="dropdown-item" href="#">Scientific</a></li>
-                </ul>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Architecture
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" href="#">Intel</a></li>
-                  <li><a class="dropdown-item" href="#">ARM</a></li>
-                </ul>
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/">Laptops</a>
               </li>
             </ul>
             <span class="navbar-text">
