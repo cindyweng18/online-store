@@ -13,7 +13,7 @@ const Nav = () => {
                   Operating Systems
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" href="#">Windows</a></li>
+                  <li><a class="dropdown-item" href="/windows">Windows</a></li>
                   <li><a class="dropdown-item" href="#">macOs</a></li>
                   <li><a class="dropdown-item" href="#">Linux</a></li>
                 </ul>
