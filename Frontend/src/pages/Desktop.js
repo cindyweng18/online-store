@@ -2,12 +2,18 @@ import React from "react";
 import Footer from "./Footer";
 import Nav from "./Nav";
 import {useForm} from "react-hook-form";
+import { useHistory } from 'react-router-dom';
 
 
 function Desktop() {
+  const history = useHistory();
   const {register, handleSubmit} = useForm();
-  const onSubmit = (d) => alert(JSON.stringify(d));
-
+  const onSubmit = (d) => {
+    var os = JSON.stringify(d).split('"')[3].toLowerCase();
+    var purpose = JSON.stringify(d).split('"')[7].toLowerCase();
+    var arch = JSON.stringify(d).split('"')[11].toLowerCase();
+    history.push(`/desktops/${os}/${purpose}/${arch}`);
+  };
 
   return (
     <>
@@ -98,7 +104,6 @@ function Desktop() {
           </div>
         </div>
       </div>
-
     <Footer />
     </>
   );

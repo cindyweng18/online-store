@@ -1,10 +1,19 @@
 import Footer from "./Footer";
 import Nav from "./Nav";
+import React from 'react';
 
-function Parts() {
+function Parts(props) {
+    const { params } = props.match;
     return (
         <>
             <Nav />
+            <div>
+                <h1> Helloooo</h1>
+                <p> {params.os} </p>
+            </div>
+
+
+
             <div class="container">
                 <div class="row justify-content-start">
                     <div class="col-6 col-sm-2">
