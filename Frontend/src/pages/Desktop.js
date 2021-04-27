@@ -90,8 +90,9 @@ function Desktop() {
                   AMD
                 </label>
               </div>
+              <br />
               <div class="form-check">
-                <input type="submit" />
+                <input class="btn btn-primary" type="submit" />
               </div>
             </form>
           </div>
