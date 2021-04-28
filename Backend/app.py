@@ -15,8 +15,8 @@ app.config["DEBUG"] = True
 config = {
     'host': '127.0.0.1',
     'port': 3306,
-    'user': 'nour',
-    'password': 'Winxclub1',
+    'user': 'cindyweng',
+    'password': 'Secret9876',
     'database': 'onlinestore'
 }
 
@@ -40,15 +40,16 @@ def createacccount():
     elif request.method == "POST":
         try:
             jsonData = request.json
-
+                        
             rowData = [] # Data to be uploaded to database
             rowData.append(jsonData["fullName"])
             rowData.append(jsonData["email"])
             rowData.append(jsonData["password"])
             rowData.append(jsonData["homeAddress"])
-            rowData.append(jsonData([]))
-            rowData.append(jsonData([]))
-            rowData.append(jsonData[[]])
+            rowData.append(jsonData["creditCard"])
+            rowData.append(jsonData["availableMoney"])
+            rowData.append(jsonData["purchaseHistory"])
+
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
@@ -99,8 +100,8 @@ def login():
             cur.execute("SELECT * FROM users WHERE email = ?",(jsonData["email"],))
             peopleData = cur.fetchone()
 
-            cur.execute("SELECT * FROM complaints where complainer = ?", (jsonData["email"],))
-            complaintsData = cur.fetchall()
+            # cur.execute("SELECT * FROM complaints where complainer = ?", (jsonData["email"],))
+            # complaintsData = cur.fetchall()
 
             if userData is not None:
                 response = {}
@@ -115,10 +116,10 @@ def login():
                 # for purchase in purchaseData:
                 #     purchaseList.append(purchase[0])
                 # response["loginData"]["purchaseHistory"] = purchaseList
-                complaintsList = []
-                for complaint in complaintsData:
-                    complaintsList.append(complaint[1])
-                response["loginData"]["complaintsList"] = complaintsList
+                # complaintsList = []
+                # for complaint in complaintsData:
+                #     complaintsList.append(complaint[1])
+                # response["loginData"]["complaintsList"] = complaintsList
                 conn.close()
                 return build_actual_response(jsonify(response)), 200
             else:
