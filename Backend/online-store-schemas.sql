@@ -81,7 +81,7 @@ CREATE TABLE Users (
   email TEXT,
   homeaddress TEXT,
   creditcard TEXT,
-  availablemoney INT,
+  availablemoney INT DEFAULT 0,
   purchasehistory TEXT,
   password TEXT,
   PRIMARY KEY (id)
