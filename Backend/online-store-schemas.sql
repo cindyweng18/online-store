@@ -29,7 +29,6 @@ CREATE TABLE Computer (
   type TEXT,
   voting INT,
   discussion INT,
-  FOREIGN KEY (discussion) REFERENCES Reviews(id),
   PRIMARY KEY (id)
   );
 CREATE TABLE ComputerPartsCompany (
@@ -61,8 +60,6 @@ CREATE TABLE Parts (
   voting INT,
   discussion_id INT,
   company_id INT,
-  FOREIGN KEY (discussion_id) REFERENCES Reviews(id),
-  FOREIGN KEY (company_id) REFERENCES ComputerPartsCompany(id),
   PRIMARY KEY (id)
   );
 CREATE TABLE Reviews (
@@ -84,7 +81,7 @@ CREATE TABLE Users (
   email TEXT,
   homeaddress TEXT,
   creditcard TEXT,
-  availablemoney INT,
+  availablemoney INT DEFAULT 0,
   purchasehistory TEXT,
   password TEXT,
   PRIMARY KEY (id)
