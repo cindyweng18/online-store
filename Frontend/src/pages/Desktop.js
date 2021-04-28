@@ -61,7 +61,7 @@ function Desktop() {
               <div class="form-check">
                 <label> 
                   <input {...register("Purpose", { required: true })}  type="radio" value="Gaming" />
-                  Gaming
+                  Gaming 
                 </label>
               </div>
               <div class="form-check">
