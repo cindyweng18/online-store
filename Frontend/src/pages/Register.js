@@ -35,7 +35,7 @@ function Register() {
           purchaseHistory: purchase,
           
         })
-        .then(async () => history.push("/"))
+        .then(async () => history.push("/login"))
         .catch(async (e) => setMessage(e.response.data.message));
     };
 

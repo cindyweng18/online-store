@@ -1,4 +1,25 @@
+import { useHistory } from 'react-router-dom';
+
 const Nav = () => {
+  const history = useHistory();
+  var user = localStorage.getItem("session");
+  var text = "Sign In";
+  var link = "/login";
+  var display = "none";
+
+  if (user !== null) {
+    text = "Welcome " + user;
+    link = "/account/" + user;
+    display = "";
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    history.push('/');
+  }
+
+
+
     return (
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
@@ -19,7 +40,10 @@ const Nav = () => {
               </li>
             </ul>
             <span class="navbar-text">
-              <a class="nav-link active" aria-current="page" href="/login">Sign In</a>
+              <a class="nav-link active" aria-current="page" href={link}> {text} </a>
+            </span>
+            <span class="navbar-text">
+              <button type="button" class="btn btn-primary" onClick={handleLogout} style={{display: display}}> Logout </button>
             </span>
           </div>
         </div>
