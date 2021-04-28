@@ -17,7 +17,7 @@ config = {
     'port': 3306,
     'user': 'nour',
     'password': 'Winxclub1',
-    'database': 'Computers'
+    'database': 'onlinestore'
 }
 
 def build_preflight_response():
@@ -30,6 +30,7 @@ def build_preflight_response():
 def build_actual_response(response):
     #response.headers.add("Access-Control-Allow-Origin", "*")
     return response
+
 
 @app.route('/createaccount', methods = ['OPTIONS', 'POST'])
 @cross_origin()
