@@ -19,7 +19,7 @@ const Nav = () => {
               </li>
             </ul>
             <span class="navbar-text">
-              Sign In
+              <a class="nav-link active" aria-current="page" href="/login">Sign In</a>
             </span>
           </div>
         </div>
