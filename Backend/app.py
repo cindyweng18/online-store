@@ -39,7 +39,7 @@ def createacccount():
     elif request.method == "POST":
         try:
             jsonData = request.json
-
+                        
             rowData = [] # Data to be uploaded to database
             rowData.append(jsonData["fullname"])
             rowData.append(jsonData["email"])
@@ -47,6 +47,7 @@ def createacccount():
             rowData.append(jsonData["homeaddress"])
             rowData.append(jsonData["creditcard"])
             rowData.append(json.dumps([]))
+
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
@@ -114,10 +115,10 @@ def login():
                 # for purchase in purchaseData:
                 #     purchaseList.append(purchase[0])
                 # response["loginData"]["purchaseHistory"] = purchaseList
-                complaintsList = []
-                for complaint in complaintsData:
-                    complaintsList.append(complaint[1])
-                response["loginData"]["complaintsList"] = complaintsList
+                # complaintsList = []
+                # for complaint in complaintsData:
+                #     complaintsList.append(complaint[1])
+                # response["loginData"]["complaintsList"] = complaintsList
                 conn.close()
                 return build_actual_response(jsonify(response)), 200
             else:
