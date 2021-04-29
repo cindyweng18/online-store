@@ -24,19 +24,25 @@ CREATE TABLE ComplaintsFiled (
 CREATE TABLE Computer (
   id INT AUTO_INCREMENT,
   name TEXT,
+  imageBase64 LONGTEXT,
   parts TEXT,
+  operating_system TEXT,
+  main_purpose TEXT,
+  architecture TEXT,
   price INT,
   type TEXT,
   voting INT,
   discussion INT,
   PRIMARY KEY (id)
   );
+
 CREATE TABLE ComputerPartsCompany (
   id INT AUTO_INCREMENT,
   name TEXT,
   complaintsreceived TEXT,
   PRIMARY KEY (id)
   );
+
 CREATE TABLE DeliveryCompany (
   id INT AUTO_INCREMENT,
   name TEXT,
@@ -53,6 +59,7 @@ CREATE TABLE Manager (
 CREATE TABLE Parts (
   id INT AUTO_INCREMENT,
   name TEXT,
+  imageBase64 LONGTEXT,
   operating_system TEXT,
   main_purpose TEXT,
   architecture TEXT,
