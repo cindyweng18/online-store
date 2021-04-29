@@ -31,7 +31,6 @@ config = {
     'database': configObj.getData()
 }
 
-
 @app.route('/createaccount', methods = ['OPTIONS', 'POST'])
 @cross_origin()
 def createacccount():
@@ -133,6 +132,25 @@ def login():
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
+
+@app.route('/builddesktop', methods = ['OPTIONS','GET'])
+@cross_origin()
+def builddesktop():
+    if request.method == "OPTIONS":
+        return build_preflight_response
+    elif request.method == "GET":
+        try: 
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            rowData = []
+            rowData.append(request.args.get('operating_system'))
+            rowData.append(request.args.get('main_purpose'))
+            rowData.append(request.args.get('architecture'))
+
+            cur.exceute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? ", tuple(rowData))
+            computerData = cur.fetchall()
+
 
 if __name__ == '__main__':
     app.run()
