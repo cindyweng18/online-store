@@ -148,8 +148,23 @@ def builddesktop():
             rowData.append(request.args.get('main_purpose'))
             rowData.append(request.args.get('architecture'))
 
-            cur.exceute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? ", tuple(rowData))
-            computerData = cur.fetchall()
+            cur.execute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? ", tuple(rowData))
+            partsData = cur.fetchall()
+            print(partsData)
+
+            response = {}
+            response["partsData"] = {}
+            response["partsData"]["name"] = partsData[1]
+            response["partsData"]["imageBase64"] = partsData[2]
+
+            conn.close()
+            return build_actual_response(jsonify(response))
+        except Exception as e:
+            body = {
+                'Error': "This username/password combination does not exist.",
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
 
 
 if __name__ == '__main__':
