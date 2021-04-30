@@ -4,13 +4,21 @@ import json
 import mariadb
 from flask import jsonify, request
 from flask_cors import CORS, cross_origin
-from config import *
+#from config import *
 
 app = flask.Flask(__name__)
 CORS(app, support_credentials=False)
 app.config["DEBUG"] = True
 
-configObj = Config()
+#configObj = Config()
+
+config = {
+    'host': '127.0.0.1',
+    'port': 3306,
+    'user': 'root',
+    'password': 'root',
+    'database': 'onlinestore'
+}
 
 def build_preflight_response():
     response = make_response()
@@ -23,13 +31,6 @@ def build_actual_response(response):
     #response.headers.add("Access-Control-Allow-Origin", "*")
     return response
 
-config = {
-    'host': configObj.getHost(),
-    'port': configObj.getPort(),
-    'user': configObj.getUser(),
-    'password': configObj.getPassword(),
-    'database': configObj.getData()
-}
 
 @app.route('/createaccount', methods = ['OPTIONS', 'POST'])
 @cross_origin()
@@ -41,12 +42,13 @@ def createacccount():
             jsonData = request.json
                         
             rowData = [] # Data to be uploaded to database
-            rowData.append(jsonData["fullname"])
+            rowData.append(jsonData["fullName"])
             rowData.append(jsonData["email"])
             rowData.append(jsonData["password"])
-            rowData.append(jsonData["homeaddress"])
-            rowData.append(jsonData["creditcard"])
-            rowData.append(json.dumps([]))
+            rowData.append(jsonData["homeAddress"])
+            rowData.append(jsonData["creditCard"])
+            rowData.append(jsonData["availableMoney"])
+            rowData.append(jsonData["purchaseHistory"])
 
 
             conn = mariadb.connect(**config)
@@ -60,7 +62,7 @@ def createacccount():
                     "Message" : "There already exists a user with this email!"
                 })), 400
             else:
-                cur.execute("INSERT INTO users (fullname, email, password, homeaddress, creditcard, purchasehistory) VALUES (?,?,?,?,?,?)", tuple(rowData))
+                cur.execute("INSERT INTO users (fullName, email, password, homeAddress, creditCard, availableMoney, purchaseHistory) VALUES (?,?,?,?,?,?,?)", tuple(rowData))
                 conn.commit()
                 conn.close()
                 return build_actual_response(jsonify({
@@ -92,14 +94,14 @@ def login():
             cur.execute("SELECT * FROM users WHERE email = ? AND password = ? ",tuple(rowData))
             userData = cur.fetchone()
 
-            # cur.execute("SELECT purchasehistory FROM users WHERE email = ?",(jsonData["email"],))
+            # cur.execute("SELECT following FROM Following WHERE username = ?",(jsonData["username"],))
             # purchaseData = cur.fetchall()
 
             cur.execute("SELECT * FROM users WHERE email = ?",(jsonData["email"],))
             peopleData = cur.fetchone()
 
-            cur.execute("SELECT * FROM complaintsfiled where complainer = ?", (jsonData["email"],))
-            complaintsData = cur.fetchall()
+            # cur.execute("SELECT * FROM complaints where complainer = ?", (jsonData["email"],))
+            # complaintsData = cur.fetchall()
 
             if userData is not None:
                 response = {}
@@ -108,9 +110,8 @@ def login():
                 response["verified"] = True
                 response["loginData"]["fullName"] = peopleData[1]
                 response["loginData"]["homeAddress"] = peopleData[3]
-                response["loginData"]["availableMoney"] = peopleData[5]
-                result = json.loads(peopleData[6])
-                response["loginData"]["purchaseHistory"] = result
+                response["loginData"]["availableMoney"] = peopleData[4]
+                response["loginData"]["purchaseHistory"] = peopleData[5]
                 # purchaseList = []
                 # for purchase in purchaseData:
                 #     purchaseList.append(purchase[0])
@@ -132,25 +133,6 @@ def login():
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
-
-@app.route('/builddesktop', methods = ['OPTIONS','GET'])
-@cross_origin()
-def builddesktop():
-    if request.method == "OPTIONS":
-        return build_preflight_response
-    elif request.method == "GET":
-        try: 
-            conn = mariadb.connect(**config)
-            cur = conn.cursor()
-
-            rowData = []
-            rowData.append(request.args.get('operating_system'))
-            rowData.append(request.args.get('main_purpose'))
-            rowData.append(request.args.get('architecture'))
-
-            cur.exceute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? ", tuple(rowData))
-            computerData = cur.fetchall()
-
 
 if __name__ == '__main__':
     app.run()
