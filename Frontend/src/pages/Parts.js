@@ -2,7 +2,9 @@ import Footer from "./Footer";
 import Nav from "./Nav";
 import React from 'react';
 
+// TODO: Modify once backend is finished.
 function Parts(props) {
+    // 'params' are the arguments given on the URL - os, purpose, arch - passed by Desktop
     const { params } = props.match;
     return (
         <>
@@ -52,7 +54,7 @@ function Parts(props) {
                                             <p class="card-text"> Estimated Value: $1,099.99</p>
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="btn-group">
-                                            <button type="button" class="btn btn-sm btn-outline-secondary">Customize and Buy</button>
+                                            <a class="btn btn-primary" href={`/desktops/${params.os}/${params.purpose}/${params.arch}/dell-alienware-aurora-r12-desktop`} role="button">Customize and Buy</a>
                                             </div>
                                         </div>
                                         </div>
