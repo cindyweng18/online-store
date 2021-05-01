@@ -9,6 +9,8 @@ import Login from "./Login";
 import Register from "./Register";
 import { Context } from './ContextApi';
 import Account from "./Account";
+import Item from "./Item";
+import Checkout from "./Checkout";
 
 const Routes = () => {
   return (
@@ -22,6 +24,8 @@ const Routes = () => {
         <Route exact={true} path={"/desktops"} component={Desktop} />
         <Route exact={true} path={"/laptops"} component={Laptop} />
         <Route exact={true} path={"/desktops/:os/:purpose/:arch"} component={Parts} />
+        <Route exact={true} path={"/desktops/:os/:purpose/:arch/:name"} component={Item} />
+        <Route exact={true} path={"/checkout"} component={Checkout} />
       </Switch>
       </Context>
     </BrowserRouter>

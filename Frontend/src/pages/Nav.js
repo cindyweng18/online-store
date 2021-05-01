@@ -1,6 +1,7 @@
 import { useHistory } from 'react-router-dom';
 
 const Nav = () => {
+  // Change parts of Nav when a user is signed in or not
   const history = useHistory();
   var user = localStorage.getItem("session");
   var text = "Sign In";
@@ -13,12 +14,11 @@ const Nav = () => {
     display = "";
   };
 
+  // Function that handles log out
   const handleLogout = () => {
     localStorage.clear();
     history.push('/');
   }
-
-
 
     return (
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">

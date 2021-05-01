@@ -1,6 +1,6 @@
 import Footer from "./Footer";
 import Nav from "./Nav";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { Link, useHistory } from 'react-router-dom'
@@ -10,13 +10,14 @@ function Login() {
     const history = useHistory();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
     const [message, setMessage] = useState("");
   
+    // Validates email and password form
     function validateForm() {
       return email.length > 0 && password.length > 0;
     };
   
+    // When user logs in, post on backend and save details on localStorage
     function handleSubmit(event, route) {
       event.preventDefault();
       axios
@@ -45,6 +46,7 @@ function Login() {
         <>
         <Nav />
         <div className="Login">
+          <p> {message} </p>
             <h1> Sign In </h1>
           <Form onSubmit={(e) => handleSubmit(e, "account")}>
             <Form.Group size="lg" controlId="email">

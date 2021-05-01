@@ -8,6 +8,8 @@ import { useHistory } from 'react-router-dom';
 function Desktop() {
   const history = useHistory();
   const {register, handleSubmit} = useForm();
+
+  // Save choices on variables so it gets sent to correct route
   const onSubmit = (d) => {
     var os = JSON.stringify(d).split('"')[3].toLowerCase();
     var purpose = JSON.stringify(d).split('"')[7].toLowerCase();
