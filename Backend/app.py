@@ -12,6 +12,15 @@ app.config["DEBUG"] = True
 
 configObj = Config()
 
+# configuration used to connect to MariaDB
+config = {
+    'host': configObj.getHost(),
+    'port': configObj.getPort(),
+    'user': configObj.getUser(),
+    'password': configObj.getPassword(),
+    'database': configObj.getData()
+}
+
 def build_preflight_response():
     response = make_response()
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -23,14 +32,6 @@ def build_actual_response(response):
     #response.headers.add("Access-Control-Allow-Origin", "*")
     return response
 
-config = {
-    'host': configObj.getHost(),
-    'port': configObj.getPort(),
-    'user': configObj.getUser(),
-    'password': configObj.getPassword(),
-    'database': configObj.getData()
-}
-
 @app.route('/createaccount', methods = ['OPTIONS', 'POST'])
 @cross_origin()
 def createacccount():
@@ -41,12 +42,13 @@ def createacccount():
             jsonData = request.json
                         
             rowData = [] # Data to be uploaded to database
-            rowData.append(jsonData["fullname"])
+            rowData.append(jsonData["fullName"])
             rowData.append(jsonData["email"])
             rowData.append(jsonData["password"])
-            rowData.append(jsonData["homeaddress"])
-            rowData.append(jsonData["creditcard"])
-            rowData.append(json.dumps([]))
+            rowData.append(jsonData["homeAddress"])
+            rowData.append(jsonData["creditCard"])
+            rowData.append(jsonData["availableMoney"])
+            rowData.append(jsonData["purchaseHistory"])
 
 
             conn = mariadb.connect(**config)
@@ -60,7 +62,7 @@ def createacccount():
                     "Message" : "There already exists a user with this email!"
                 })), 400
             else:
-                cur.execute("INSERT INTO users (fullname, email, password, homeaddress, creditcard, purchasehistory) VALUES (?,?,?,?,?,?)", tuple(rowData))
+                cur.execute("INSERT INTO users (fullName, email, password, homeAddress, creditCard, availableMoney, purchaseHistory) VALUES (?,?,?,?,?,?,?)", tuple(rowData))
                 conn.commit()
                 conn.close()
                 return build_actual_response(jsonify({
@@ -92,13 +94,13 @@ def login():
             cur.execute("SELECT * FROM users WHERE email = ? AND password = ? ",tuple(rowData))
             userData = cur.fetchone()
 
-            # cur.execute("SELECT purchasehistory FROM users WHERE email = ?",(jsonData["email"],))
+            # cur.execute("SELECT following FROM Following WHERE username = ?",(jsonData["username"],))
             # purchaseData = cur.fetchall()
 
             cur.execute("SELECT * FROM users WHERE email = ?",(jsonData["email"],))
             peopleData = cur.fetchone()
 
-            cur.execute("SELECT * FROM complaintsfiled where complainer = ?", (jsonData["email"],))
+            cur.execute("SELECT * FROM complaints where complainer = ?", (jsonData["email"],))
             complaintsData = cur.fetchall()
 
             if userData is not None:
@@ -108,17 +110,16 @@ def login():
                 response["verified"] = True
                 response["loginData"]["fullName"] = peopleData[1]
                 response["loginData"]["homeAddress"] = peopleData[3]
-                response["loginData"]["availableMoney"] = peopleData[5]
-                result = json.loads(peopleData[6])
-                response["loginData"]["purchaseHistory"] = result
+                response["loginData"]["availableMoney"] = peopleData[4]
+                response["loginData"]["purchaseHistory"] = peopleData[5]
                 # purchaseList = []
                 # for purchase in purchaseData:
                 #     purchaseList.append(purchase[0])
                 # response["loginData"]["purchaseHistory"] = purchaseList
-                # complaintsList = []
-                # for complaint in complaintsData:
-                #     complaintsList.append(complaint[1])
-                # response["loginData"]["complaintsList"] = complaintsList
+                complaintsList = []
+                for complaint in complaintsData:
+                    complaintsList.append(complaint[1])
+                response["loginData"]["complaintsList"] = complaintsList
                 conn.close()
                 return build_actual_response(jsonify(response)), 200
             else:
@@ -148,24 +149,8 @@ def builddesktop():
             rowData.append(request.args.get('main_purpose'))
             rowData.append(request.args.get('architecture'))
 
-            cur.execute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? ", tuple(rowData))
-            partsData = cur.fetchall()
-            print(partsData)
-
-            response = {}
-            response["partsData"] = {}
-            response["partsData"]["name"] = partsData[1]
-            response["partsData"]["imageBase64"] = partsData[2]
-
-            conn.close()
-            return build_actual_response(jsonify(response))
-        except Exception as e:
-            body = {
-                'Error': "This username/password combination does not exist.",
-            }
-            print("ERROR MSG:",str(e))
-            return build_actual_response(jsonify(body)), 400
-
+            cur.exceute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? ", tuple(rowData))
+            computerData = cur.fetchall()
 
 if __name__ == '__main__':
     app.run()
