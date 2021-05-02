@@ -20,6 +20,15 @@ config = {
     'database': 'onlinestore'
 }
 
+# configuration used to connect to MariaDB
+config = {
+    'host': configObj.getHost(),
+    'port': configObj.getPort(),
+    'user': configObj.getUser(),
+    'password': configObj.getPassword(),
+    'database': configObj.getData()
+}
+
 def build_preflight_response():
     response = make_response()
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -30,7 +39,6 @@ def build_preflight_response():
 def build_actual_response(response):
     #response.headers.add("Access-Control-Allow-Origin", "*")
     return response
-
 
 @app.route('/createaccount', methods = ['OPTIONS', 'POST'])
 @cross_origin()
@@ -100,6 +108,9 @@ def login():
             cur.execute("SELECT * FROM users WHERE email = ?",(jsonData["email"],))
             peopleData = cur.fetchone()
 
+            cur.execute("SELECT * FROM complaints where complainer = ?", (jsonData["email"],))
+            complaintsData = cur.fetchall()
+            
             # cur.execute("SELECT * FROM complaints where complainer = ?", (jsonData["email"],))
             # complaintsData = cur.fetchall()
 
@@ -116,10 +127,10 @@ def login():
                 # for purchase in purchaseData:
                 #     purchaseList.append(purchase[0])
                 # response["loginData"]["purchaseHistory"] = purchaseList
-                # complaintsList = []
-                # for complaint in complaintsData:
-                #     complaintsList.append(complaint[1])
-                # response["loginData"]["complaintsList"] = complaintsList
+                complaintsList = []
+                for complaint in complaintsData:
+                    complaintsList.append(complaint[1])
+                response["loginData"]["complaintsList"] = complaintsList
                 conn.close()
                 return build_actual_response(jsonify(response)), 200
             else:
@@ -133,6 +144,25 @@ def login():
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
+
+
+@app.route('/builddesktop', methods = ['OPTIONS','GET'])
+@cross_origin()
+def builddesktop():
+    if request.method == "OPTIONS":
+        return build_preflight_response
+    elif request.method == "GET":
+        try: 
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            rowData = []
+            rowData.append(request.args.get('operating_system'))
+            rowData.append(request.args.get('main_purpose'))
+            rowData.append(request.args.get('architecture'))
+
+            cur.exceute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? ", tuple(rowData))
+            computerData = cur.fetchall()
 
 if __name__ == '__main__':
     app.run()
