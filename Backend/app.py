@@ -264,6 +264,135 @@ def editcreditcard():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
+@app.route('/editmoney', methods = ['OPTIONS', 'POST'])
+@cross_origin()
+def editmoney():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try:
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["availableMoney"])
+            rowData.append(jsonData["email"])
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("UPDATE users SET availableMoney = ? WHERE email = ?", tuple(rowData))
+            conn.commit()
+            conn.close()
+
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Can't edit available money!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/deleteproduct', methods = ['OPTOINS', 'POST'])
+@cross_origin()
+def deleteproduct():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try: 
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["name"])
+            rowData.append(jsonData["email"])
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("DELETE FROM cart WHERE name = ? AND email = ?", tuple(rowData))
+            conn.commit()
+
+            conn.close()
+
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Can't delete product from cart!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/addtocart', methods = ['OPTIONS', 'POST'])
+@cross_origin()
+def addtocart():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try: 
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["email"])
+            rowData.append(jsonData["name"])
+            rowData.append(jsonData["imageBase64"])
+            rowData.append(jsonData["price"])
+            print(rowData)
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("INSERT INTO cart (email, name, imageBase64, price) VALUES (?,?,?,?)", tuple(rowData))
+            conn.commit()
+            conn.close()
+            
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Can't add product to cart!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/viewcart', methods = ['OPTIONS', 'GET'])
+@cross_origin()
+def viewcart():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'GET':
+        try:
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            email = request.args.get('email')
+            cur.execute("SELECT * FROM cart WHERE email = ?",(email,))
+            cartData = cur.fetchall()
+            print(cartData)
+
+            response = {}
+            products = []
+            for part in cartData:
+                productOBJ = {}
+                productOBJ["name"] = part[1]
+                productOBJ["imageBase64"] = part[2]
+                productOBJ["price"] = part[3]
+                if productOBJ not in products:
+                    products.append(productOBJ)
+            response["cartData"] = products
+
+            conn.close()
+            return build_actual_response(jsonify(response))
+
+        except Exception as e:
+            body = {
+                'Error': "Can't display cart.",
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
 
 if __name__ == '__main__':
     app.run()
