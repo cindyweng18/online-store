@@ -1,7 +1,7 @@
 {
-    "host": "127.0.0.1",
-    "port": 3306,
-    "user": "root",
-    "password": "root",
-    "database": "onlinestore"
+    "host": "PUT YOUR HOST HERE Like: 127.0.0.1",
+    "port": 9999,
+    "user": "REPLACE",
+    "password": "PUT YOUR PASSWORD HERE",
+    "database": "ImageCaravan"
 }

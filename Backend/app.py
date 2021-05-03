@@ -47,7 +47,7 @@ def createacccount():
             rowData.append(jsonData["password"])
             rowData.append(jsonData["homeAddress"])
             rowData.append(jsonData["creditCard"])
-            rowData.append(jsonData["availableMoney"])
+            #rowData.append(jsonData["availableMoney"])
             rowData.append(jsonData["purchaseHistory"])
 
 
@@ -62,7 +62,7 @@ def createacccount():
                     "Message" : "There already exists a user with this email!"
                 })), 400
             else:
-                cur.execute("INSERT INTO users (fullName, email, password, homeAddress, creditCard, availableMoney, purchaseHistory) VALUES (?,?,?,?,?,?,?)", tuple(rowData))
+                cur.execute("INSERT INTO users (fullName, email, password, homeAddress, creditCard, purchaseHistory) VALUES (?,?,?,?,?,?)", tuple(rowData))
                 conn.commit()
                 conn.close()
                 return build_actual_response(jsonify({
@@ -100,9 +100,6 @@ def login():
             cur.execute("SELECT * FROM users WHERE email = ?",(jsonData["email"],))
             peopleData = cur.fetchone()
 
-            cur.execute("SELECT * FROM complaints where complainer = ?", (jsonData["email"],))
-            complaintsData = cur.fetchall()
-            
             # cur.execute("SELECT * FROM complaints where complainer = ?", (jsonData["email"],))
             # complaintsData = cur.fetchall()
 
@@ -113,16 +110,16 @@ def login():
                 response["verified"] = True
                 response["loginData"]["fullName"] = peopleData[1]
                 response["loginData"]["homeAddress"] = peopleData[3]
-                response["loginData"]["availableMoney"] = peopleData[4]
-                response["loginData"]["purchaseHistory"] = peopleData[5]
+                response["loginData"]["availableMoney"] = peopleData[5]
+                response["loginData"]["purchaseHistory"] = peopleData[6]
                 # purchaseList = []
                 # for purchase in purchaseData:
                 #     purchaseList.append(purchase[0])
                 # response["loginData"]["purchaseHistory"] = purchaseList
-                complaintsList = []
-                for complaint in complaintsData:
-                    complaintsList.append(complaint[1])
-                response["loginData"]["complaintsList"] = complaintsList
+                # complaintsList = []
+                # for complaint in complaintsData:
+                #     complaintsList.append(complaint[1])
+                # response["loginData"]["complaintsList"] = complaintsList
                 conn.close()
                 return build_actual_response(jsonify(response)), 200
             else:
@@ -173,6 +170,96 @@ def builddesktop():
         except Exception as e:
             body = {
                 'Error': "This combination does not exist sorry!",
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/editname', methods = ['OPTIONS', 'POST'])
+@cross_origin()
+def editname():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try:
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["fullName"])
+            rowData.append(jsonData["email"])
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("UPDATE users SET fullName = ? WHERE email = ?", tuple(rowData))
+            conn.commit()
+            conn.close()
+
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Can't edit name!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/editpassword', methods = ['OPTIONS', 'POST'])
+@cross_origin()
+def editpassword():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try:
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["password"])
+            rowData.append(jsonData["email"])
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("UPDATE users SET password = ? WHERE email = ?", tuple(rowData))
+            conn.commit()
+            conn.close()
+
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Can't edit password!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/editcreditcard', methods = ['OPTIONS', 'POST'])
+@cross_origin()
+def editcreditcard():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try:
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["creditCard"])
+            rowData.append(jsonData["email"])
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("UPDATE users SET creditcard = ? WHERE email = ?", tuple(rowData))
+            conn.commit()
+            conn.close()
+
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Can't edit credit card!"
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
