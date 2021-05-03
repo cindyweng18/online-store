@@ -100,6 +100,13 @@ CREATE TABLE Users (
   PRIMARY KEY (id)
   );
 
+CREATE TABLE Cart (
+  email TEXT,
+  name TEXT,
+  imageBase64 LONGTEXT,
+  price INT
+);
+
 INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) 
   values ('Part1','example','macOS','Gaming','Intel',1000,0,0,0);
 
