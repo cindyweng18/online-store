@@ -4,21 +4,13 @@ import json
 import mariadb
 from flask import jsonify, request
 from flask_cors import CORS, cross_origin
-#from config import *
+from config import *
 
 app = flask.Flask(__name__)
 CORS(app, support_credentials=False)
 app.config["DEBUG"] = True
 
-#configObj = Config()
-
-config = {
-    'host': '127.0.0.1',
-    'port': 3306,
-    'user': 'root',
-    'password': 'root',
-    'database': 'onlinestore'
-}
+configObj = Config()
 
 # configuration used to connect to MariaDB
 config = {

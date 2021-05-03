@@ -100,13 +100,11 @@ CREATE TABLE Users (
   PRIMARY KEY (id)
   );
 
-
 INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) 
   values ('Part1','example','macOS','Gaming','Intel',1000,0,0,0);
 
 INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion) 
   values ('Part1','example','macOS','Gaming','Mac',1000,0,0);
-
 
 INSERT INTO DeliveryCompany (name) VALUES ('Fedex');
 INSERT INTO DeliveryCompany (name) VALUES ('UPS');
@@ -116,3 +114,4 @@ INSERT INTO Manager (name) VALUES ('Sandra Patton');
 INSERT INTO Clerk (name) VALUES ('Jack Hernandez');
 
 INSERT INTO ComputerPartsCompany (name) VALUES ('Apple');
+
