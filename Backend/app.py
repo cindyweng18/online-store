@@ -102,6 +102,9 @@ def login():
 
             cur.execute("SELECT * FROM complaints where complainer = ?", (jsonData["email"],))
             complaintsData = cur.fetchall()
+            
+            # cur.execute("SELECT * FROM complaints where complainer = ?", (jsonData["email"],))
+            # complaintsData = cur.fetchall()
 
             if userData is not None:
                 response = {}
@@ -134,6 +137,7 @@ def login():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
+
 @app.route('/builddesktop', methods = ['OPTIONS','GET'])
 @cross_origin()
 def builddesktop():
@@ -149,8 +153,30 @@ def builddesktop():
             rowData.append(request.args.get('main_purpose'))
             rowData.append(request.args.get('architecture'))
 
-            cur.exceute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? ", tuple(rowData))
+            cur.execute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? ", tuple(rowData))
             computerData = cur.fetchall()
+            response = {}
+            parts = []
+            for part in computerData:
+                partsOBJ = {}
+                partsOBJ["name"] = part[1]
+                partsOBJ["imageBase64"] = part[2]
+                partsOBJ["price"] = part[6]
+                if partsOBJ not in parts:
+                    parts.append(partsOBJ)
+            response["partsData"] = parts
+
+            conn.close()
+
+            return build_actual_response(jsonify(response))
+
+        except Exception as e:
+            body = {
+                'Error': "This combination does not exist sorry!",
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
 
 if __name__ == '__main__':
     app.run()
