@@ -9,12 +9,10 @@ function Parts(props) {
     return (
         <>
             <Nav />
-            <div>
+            {/* <div>
                 <h1> Helloooo</h1>
                 <p> {params.os} </p>
-            </div>
-
-
+            </div> */}
 
             <div class="container">
                 <div class="row justify-content-start">
