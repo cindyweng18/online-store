@@ -46,10 +46,9 @@ def createacccount():
             rowData.append(jsonData["email"])
             rowData.append(jsonData["password"])
             rowData.append(jsonData["homeAddress"])
-            rowData.append(jsonData["creditCard"])
+            #rowData.append(jsonData["creditCard"])
             #rowData.append(jsonData["availableMoney"])
             rowData.append(jsonData["purchaseHistory"])
-
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
@@ -62,7 +61,9 @@ def createacccount():
                     "Message" : "There already exists a user with this email!"
                 })), 400
             else:
-                cur.execute("INSERT INTO users (fullName, email, password, homeAddress, creditCard, purchaseHistory) VALUES (?,?,?,?,?,?)", tuple(rowData))
+                cur.execute("INSERT INTO users (fullName, email, password, homeAddress, purchaseHistory) VALUES (?,?,?,?,?)", tuple(rowData))
+                cur.execute("INSERT INTO CreditCard (email) VALUES (?)", (jsonData["email"],))
+                cur.execute
                 conn.commit()
                 conn.close()
                 return build_actual_response(jsonify({
@@ -134,7 +135,6 @@ def login():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
-
 @app.route('/builddesktop', methods = ['OPTIONS','GET'])
 @cross_origin()
 def builddesktop():
@@ -159,6 +159,8 @@ def builddesktop():
                 partsOBJ["name"] = part[1]
                 partsOBJ["imageBase64"] = part[2]
                 partsOBJ["price"] = part[6]
+                partsOBJ["voting"] = part[7]
+                partsOBJ["discussion_id"] = part[8]
                 if partsOBJ not in parts:
                     parts.append(partsOBJ)
             response["partsData"] = parts
@@ -244,13 +246,16 @@ def editcreditcard():
             jsonData = request.json
 
             rowData = []
-            rowData.append(jsonData["creditCard"])
+            rowData.append(jsonData["name"])
+            rowData.append(jsonData["number"])
+            rowData.append(jsonData["cvc"])
+            rowData.append(jsonData["expirationDate"])
             rowData.append(jsonData["email"])
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
-            cur.execute("UPDATE users SET creditcard = ? WHERE email = ?", tuple(rowData))
+            cur.execute("UPDATE CreditCard SET name = ? , number = ? ,cvc = ?, expirationDate = ? WHERE email = ?", tuple(rowData))
             conn.commit()
             conn.close()
 
