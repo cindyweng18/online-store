@@ -5,16 +5,16 @@ import {useForm} from "react-hook-form";
 import { useHistory } from 'react-router-dom';
 
 
-function Desktop() {
+function Computer(props) {
   const history = useHistory();
   const {register, handleSubmit} = useForm();
-
+  const { params } = props.match;
   // Save choices on variables so it gets sent to correct route
   const onSubmit = (d) => {
     var os = JSON.stringify(d).split('"')[3].toLowerCase();
     var purpose = JSON.stringify(d).split('"')[7].toLowerCase();
     var arch = JSON.stringify(d).split('"')[11].toLowerCase();
-    history.push(`/desktops/${os}/${purpose}/${arch}`);
+    history.push(`/${params.computer}/${os}/${purpose}/${arch}`);
   };
 
   return (
@@ -111,4 +111,4 @@ function Desktop() {
   );
 }
 
-export default Desktop;
+export default Computer;

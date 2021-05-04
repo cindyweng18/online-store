@@ -5,13 +5,41 @@ import { useState } from "react";
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import {useRef} from 'react';
+import axios from "axios";
 
 function Checkout() {
     //const history = useHistory();
+
+    // Variables to hold user's info and display on checkout
     const [disable, setDisable] = useState(false);
-    let btnRef = useRef();
+    const [email, setEmail] = useState();
+    const [name, setName] = useState();
+    const [address, setAddress] = useState();
+    const [card, setCard] = useState();
+    const [money, setMoney] = useState();
+    const [message, setMessage] = useState("");
+    var user = localStorage.getItem("session").replace("-"," ");
+
+    // If user is not signed in, page shows nothing
+    var display = "none";
+    if (user !== null) {
+        display = "";
+    };    
+
+    // Get user's account information
+    axios
+    .get(`/viewaccount?fullName=${user}`)
+    .then(async (response) => {
+        setEmail(response.data['userData'][0]['email']);
+        setName(response.data['userData'][0]['fullName']);
+        setCard(response.data['userData'][0]['creditCard']);
+        setAddress(response.data['userData'][0]['homeAddress']);
+        setMoney(response.data['userData'][0]['availableMoney']);
+    })
+    .catch((e) => setMessage("error"));
 
     // Disables Buy button after click
+    var btnRef = useRef();
     const onBtnClick = e => {
         if(btnRef.current){
           btnRef.current.setAttribute("disabled", "disabled");
@@ -24,7 +52,7 @@ function Checkout() {
     return(
         <>
         <Nav />
-        <div class="container">
+        <div class="container" style={{display:display}}>
             <Alert show={disable} variant="success">
                 <Alert.Heading>Purchase Completed</Alert.Heading>
                 <p>
@@ -81,33 +109,29 @@ function Checkout() {
                 </div>
 
                 <div class="col-md-7 col-lg-8">
+                    <h2> {message} </h2>
                     <h4 class="mb-3">Shipping address</h4>
                     <form>
                     <div class="row g-3">
                         <div class="col-sm-6">
                         <label for="firstName" class="form-label">First name</label>
-                        <h6> Cindy </h6>
+                        <h6> {name.split(" ")[0]} </h6>
                         </div>
 
                         <div class="col-sm-6">
                         <label for="lastName" class="form-label">Last name</label>
-                        <h6> Weng </h6>
+                        <h6> {name.split(" ")[1]} </h6>
                         </div>
 
                         <div class="col-12">
                         <label for="email" class="form-label">Email </label>
-                        <h6> cindy@test.com </h6>
+                        <h6> {email} </h6>
                         </div>
 
                         <div class="col-12">
                         <label for="address" class="form-label">Address</label>
-                        <h6> 123 Main St </h6>
+                        <h6> {address} </h6>
                         </div>
-
-                        {/* <div class="col-md-3">
-                        <label for="country" class="form-label">Country</label>
-                        <input class="form-control" type="text" placeholder="United States" aria-label="Disabled input example" disabled/>
-                        </div> */}
 
                         <div class="col-md-4">
                         <label for="state" class="form-label">State</label>
