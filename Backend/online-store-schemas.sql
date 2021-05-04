@@ -107,6 +107,16 @@ CREATE TABLE Cart (
   price INT
 );
 
+CREATE TABLE CreditCard (
+  id INT AUTO_INCREMENT,
+  name TEXT,
+  number TEXT,
+  cvc TEXT,
+  expirationDate TEXT,
+  email TEXT,
+  PRIMARY KEY (id)
+);
+
 INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) 
   values ('Part1','example','macOS','Gaming','Intel',1000,0,0,0);
 
