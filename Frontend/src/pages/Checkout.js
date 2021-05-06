@@ -1,7 +1,7 @@
 import Footer from "./Footer";
 import Nav from "./Nav";
 //import { useHistory } from 'react-router-dom';
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import {useRef} from 'react';
@@ -12,13 +12,17 @@ function Checkout() {
 
     // Variables to hold user's info and display on checkout
     const [disable, setDisable] = useState(false);
-    const [email, setEmail] = useState();
-    const [name, setName] = useState();
+    const [firstName, setFirstName] = useState();
+    const [lastName, setLastName] = useState();
     const [address, setAddress] = useState();
     const [card, setCard] = useState();
     const [money, setMoney] = useState();
-    const [message, setMessage] = useState("");
+    const [cart, setCart] = useState([]);
+    const [total, setTotal] = useState(0);
+
+    var email = localStorage.getItem("userEmail");
     var user = localStorage.getItem("session").replace("-"," ");
+
 
     // If user is not signed in, page shows nothing
     var display = "none";
@@ -26,17 +30,27 @@ function Checkout() {
         display = "";
     };    
 
-    // Get user's account information
-    axios
-    .get(`/viewaccount?fullName=${user}`)
-    .then(async (response) => {
-        setEmail(response.data['userData'][0]['email']);
-        setName(response.data['userData'][0]['fullName']);
-        setCard(response.data['userData'][0]['creditCard']);
-        setAddress(response.data['userData'][0]['homeAddress']);
-        setMoney(response.data['userData'][0]['availableMoney']);
-    })
-    .catch((e) => setMessage("error"));
+
+    useEffect(() => {
+        const fetchData = async () => {
+            // Get user info
+            const getUser = await axios.get(`/viewaccount?fullName=${user}`);
+            // Get cart items
+            const getCart =  await axios.get(`/viewcart?email=${email}`);
+            
+            setFirstName(getUser.data['userData'][0]['fullName'].split(" ")[0]);
+            setLastName(getUser.data['userData'][0]['fullName'].split(" ")[1]);
+            setCard(getUser.data['userData'][0]['creditCard']);
+            setAddress(getUser.data['userData'][0]['homeAddress']);
+            setMoney(getUser.data['userData'][0]['availableMoney']);
+            setCart(getCart.data['cartData']);
+            
+        }
+        fetchData();
+    
+    }, [user, email]);
+
+    
 
     // Disables Buy button after click
     var btnRef = useRef();
@@ -52,7 +66,7 @@ function Checkout() {
     return(
         <>
         <Nav />
-        <div class="container" style={{display:display}}>
+        <div className="container" style={{display:display}}>
             <Alert show={disable} variant="success">
                 <Alert.Heading>Purchase Completed</Alert.Heading>
                 <p>
@@ -69,98 +83,77 @@ function Checkout() {
             </Alert>
 
 
-            <div class="py-5 text-center">
+            <div className="py-5 text-center">
                 <h2>Checkout</h2>
             </div>
 
-            <div class="row g-5">
-                <div class="col-md-5 col-lg-4 order-md-last">
-                    <h4 class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-primary">Your cart</span>
-                    <span class="badge bg-primary rounded-pill">3</span>
+            <div className="row g-5">
+                <div className="col-md-5 col-lg-4 order-md-last">
+                    <h4 className="d-flex justify-content-between align-items-center mb-3">
+                    <span className="text-primary">Your cart</span>
+                    <span className="badge bg-primary rounded-pill">{cart.length}</span>
                     </h4>
-                    <ul class="list-group mb-3">
-                    <li class="list-group-item d-flex justify-content-between lh-sm">
+                    <ul className="list-group mb-3">
+                    {cart.map(item =>
+                    <li key={item} className="list-group-item d-flex justify-content-between lh-sm">
+                        <button type="button" className="btn-close" aria-label="Close"></button>
                         <div>
-                        <h6 class="my-0">Product name</h6>
-                        <small class="text-muted">Brief description</small>
+                            <h6 className="my-0"> {item.name.split("-").join(" ")} </h6>
+                            <small className="text-muted">Brief description</small>
                         </div>
-                        <span class="text-muted">$12</span>
+                        <span className="text-muted">${item.price}</span> 
+                        
                     </li>
-                    <li class="list-group-item d-flex justify-content-between lh-sm">
-                        <div>
-                        <h6 class="my-0">Second product</h6>
-                        <small class="text-muted">Brief description</small>
-                        </div>
-                        <span class="text-muted">$8</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between lh-sm">
-                        <div>
-                        <h6 class="my-0">Third item</h6>
-                        <small class="text-muted">Brief description</small>
-                        </div>
-                        <span class="text-muted">$5</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
+                    )}
+                    <li className="list-group-item d-flex justify-content-between">
                         <span>Total (USD)</span>
-                        <strong>$20</strong>
+                        <strong>${total}</strong>
                     </li>
                     </ul>
                 </div>
 
-                <div class="col-md-7 col-lg-8">
-                    <h2> {message} </h2>
-                    <h4 class="mb-3">Shipping address</h4>
+                <div className="col-md-7 col-lg-8">
+                    <h4 className="mb-3">Shipping address</h4>
                     <form>
-                    <div class="row g-3">
-                        <div class="col-sm-6">
-                        <label for="firstName" class="form-label">First name</label>
-                        <h6> {name.split(" ")[0]} </h6>
+                    <div className="row g-3">
+                        <div className="col-sm-6">
+                        <label htmlFor="firstName" className="form-label">First name</label>
+                        <h6> {firstName} </h6>
                         </div>
 
-                        <div class="col-sm-6">
-                        <label for="lastName" class="form-label">Last name</label>
-                        <h6> {name.split(" ")[1]} </h6>
+                        <div className="col-sm-6">
+                        <label htmlFor="lastName" className="form-label">Last name</label>
+                        <h6> {lastName} </h6>
                         </div>
 
-                        <div class="col-12">
-                        <label for="email" class="form-label">Email </label>
+                        <div className="col-12">
+                        <label htmlFor="email" className="form-label">Email </label>
                         <h6> {email} </h6>
                         </div>
 
-                        <div class="col-12">
-                        <label for="address" class="form-label">Address</label>
+                        <div className="col-12">
+                        <label htmlFor="address" className="form-label">Address</label>
                         <h6> {address} </h6>
-                        </div>
-
-                        <div class="col-md-4">
-                        <label for="state" class="form-label">State</label>
-                        <h6> New York </h6>
-                        </div>
-
-                        <div class="col-md-3">
-                        <label for="zip" class="form-label">Zip</label>
-                            <h6> 10031 </h6>
                         </div>
                     </div>
 
                     <p> Address is not correct? Click here to change it.</p>
 
 
-                    <hr class="my-4" />
+                    <hr className="my-4" />
 
-                    <h4 class="mb-3">Payment</h4>
-                    <div class="my-3">
-                        <div class="form-check">
-                        <input id="credit" name="paymentMethod" type="radio" class="form-check-input" checked required/>
-                        <label class="form-check-label" for="credit">Credit card (ending in 1234) </label>
+                    <h4 className="mb-3">Payment</h4>
+                    <div className="my-3">
+                        <div className="form-check">
+                        <input id="credit" name="paymentMethod" type="radio" className="form-check-input" defaultChecked required/>
+                        <label className="form-check-label" htmlFor="credit">Credit card (ending in 1234) </label>
                         </div>
-                        <div class="form-check">
-                        <input id="debit" name="paymentMethod" type="radio" class="form-check-input" required/>
-                        <label class="form-check-label" for="debit">Money Deposit</label>
+                        <div className="form-check">
+                        <input id="debit" name="paymentMethod" type="radio" className="form-check-input" required/>
+                        <label className="form-check-label" htmlFor="debit">Money Deposit</label>
                         </div>
                     </div>
-                    <button class="w-100 btn btn-primary btn-lg" type="submit" ref={btnRef} onClick={onBtnClick}>Buy!</button>
+                    <button className="w-100 btn btn-primary btn-lg" type="submit" ref={btnRef} onClick={onBtnClick}>Buy!</button>
                     </form>
                 </div>
             </div>

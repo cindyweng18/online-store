@@ -10,6 +10,7 @@ import Account from "./Account";
 import Item from "./Item";
 import Checkout from "./Checkout";
 import Computer from "./Computer";
+import Discussion from "./Discussion";
 
 const Routes = () => {
   return (
@@ -21,6 +22,7 @@ const Routes = () => {
         <Route exact={true} path={"/register"} component={Register} />
         <Route exact={true} path={"/account/:user"} component={Account} />
         <Route exact={true} path={"/checkout"} component={Checkout} />
+        <Route exact={true} path={"/discussion"} component={Discussion} />
         <Route exact={true} path={"/:computer"} component={Computer} />
         <Route exact={true} path={"/:computer/:os/:purpose/:arch"} component={Parts} />
         <Route exact={true} path={"/:computer/:os/:purpose/:arch/:name"} component={Item} />
