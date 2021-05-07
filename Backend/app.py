@@ -340,7 +340,47 @@ def choosecomputer():
                 if computerOBJ not in computers:
                     computers.append(computerOBJ)
             response["computerData"] = computers
+            conn.close()
 
+            return build_actual_response(jsonify(response))
+
+        except Exception as e:
+            body = {
+                'Error': "This combination does not exist sorry!",
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/viewitem', methods = ['OPTIONS','GET'])
+@cross_origin()
+def viewitem():
+    if request.method == "OPTIONS":
+        return build_preflight_response
+    elif request.method == "GET":
+        try: 
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            rowData = []
+            rowData.append(request.args.get('operating_system'))
+            rowData.append(request.args.get('main_purpose'))
+            rowData.append(request.args.get('architecture'))
+            rowData.append(request.args.get('name'))
+
+            cur.execute("SELECT * FROM computer where operating_system = ? AND main_purpose = ? AND architecture = ? AND name = ? ", tuple(rowData))
+            computerData = cur.fetchall()
+            response = {}
+            computers = []
+            for computer in computerData:
+                computerOBJ = {}
+                computerOBJ["name"] = computer[1]
+                computerOBJ["imageBase64"] = computer[2]
+                computerOBJ["price"] = computer[7]
+                computerOBJ["voting"] = computer[9]
+                computerOBJ["discussion_id"] = computer[10]
+                if computerOBJ not in computers:
+                    computers.append(computerOBJ)
+            response["computerData"] = computers
             conn.close()
 
             return build_actual_response(jsonify(response))
@@ -588,7 +628,7 @@ def viewcart():
                  if productOBJ not in products:
                      products.append(productOBJ)
              response["cartData"]["allProducts"] = products
-             response["cartData"]["totalPrice"] = float(priceData[0])
+             response["cartData"]["totalPrice"] = 0 if priceData[0] is None else float(priceData[0])
 
              conn.close()
              return build_actual_response(jsonify(response))
@@ -723,5 +763,6 @@ def checkout():
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
+
 if __name__ == '__main__':
     app.run()

@@ -1,31 +1,25 @@
 import Footer from "./Footer";
 import Nav from "./Nav";
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import { useState } from "react";
 
 function Parts(props) {
     // 'params' are the arguments given on the URL - os, purpose, arch - passed by Computer file
     const { params } = props.match;
-    const [message, setMessage] = useState("");
     const [items, setItems] = useState([]);
 
     useEffect(() => {
-        async function fetchItems() {
-            axios.get(`/builddesktop?operating_system=${params.os}&main_purpose=${params.purpose}&architecture=${params.arch}`)
-            .then(async (response) => {
-                setItems(response.data['partsData']);
-            })
-            .catch((e) => setMessage("error"));
+        const fetchData = async () => {
+            const getItems = await axios.get(`/choosecomputer?operating_system=${params.os}&main_purpose=${params.purpose}&architecture=${params.arch}`);
+            setItems(getItems.data['computerData']);
         }
-    fetchItems();
+        fetchData();
     }, [params]);
-    
+
     
     return (
         <>
             <Nav />
-            <h1> {message} </h1>
 
             <div className="container"> 
                 <div className="row justify-content-start">
@@ -47,7 +41,7 @@ function Parts(props) {
                                     {items.map(item =>
                                         <div className="col">
                                             <div className="card shadow-sm">
-                                                <img src="..." class="card-img-top" alt="..." />
+                                                <img src="..." className="card-img-top" alt="..." />
                                                 <div className="card-body">
                                                     <h2> {item.name} </h2> 
                                                     
