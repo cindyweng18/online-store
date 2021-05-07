@@ -21,7 +21,7 @@ function Login() {
     function handleSubmit(event, route) {
       event.preventDefault();
       axios
-      .post("/login", {
+      .post("/userlogin", {
         email: email,
         password: password,
       })
@@ -32,7 +32,7 @@ function Login() {
         localStorage.setItem("session", response.data['loginData']['fullName'].replace(" ", "-"));
         history.push(`/${route}/${response.data['loginData']['fullName'].replace(" ", "-")}`);
       })
-      .catch((e) => setMessage("error"));
+      .catch((e) => setMessage("Something went wrong. Try Again."));
       };
 
       // useEffect(() => {
@@ -47,8 +47,8 @@ function Login() {
         <>
         <Nav />
         <div className="Login">
-          <p> {message} </p>
             <h1> Sign In </h1>
+            <p> {message} </p>
           <Form onSubmit={(e) => handleSubmit(e, "account")}>
             <Form.Group size="lg" controlId="email">
               <Form.Label>Email</Form.Label>
