@@ -19,6 +19,7 @@ function Checkout() {
     const [money, setMoney] = useState();
     const [cart, setCart] = useState([]);
     const [total, setTotal] = useState(0);
+    const [message, setMessage] = useState("");
 
     var email = localStorage.getItem("userEmail");
     var user = localStorage.getItem("session").replace("-"," ");
@@ -30,11 +31,24 @@ function Checkout() {
         display = "";
     };    
 
+    // Function to delete a specific product from cart
+    function deleteProduct(productName) {
+        axios.post("/deleteproduct", {
+            email: email,
+            name: productName,
+        })
+        .then(async (response) => {
+            setCart(response.data['cartData']);
+            window.location.reload();
+        })
+        .catch(async (e) => setMessage(e.response.data.message));
+    }
 
+    
     useEffect(() => {
         const fetchData = async () => {
             // Get user info
-            const getUser = await axios.get(`/viewaccount?fullName=${user}`);
+            const getUser = await axios.get(`/viewaccount?email=${email}`);
             // Get cart items
             const getCart =  await axios.get(`/viewcart?email=${email}`);
             
@@ -43,14 +57,12 @@ function Checkout() {
             setCard(getUser.data['userData'][0]['creditCard']);
             setAddress(getUser.data['userData'][0]['homeAddress']);
             setMoney(getUser.data['userData'][0]['availableMoney']);
-            setCart(getCart.data['cartData']);
-            
+            setCart(getCart.data['cartData']['allProducts']);
+            setTotal(getCart.data['cartData']['totalPrice']);
         }
         fetchData();
     
     }, [user, email]);
-
-    
 
     // Disables Buy button after click
     var btnRef = useRef();
@@ -96,7 +108,7 @@ function Checkout() {
                     <ul className="list-group mb-3">
                     {cart.map(item =>
                     <li key={item} className="list-group-item d-flex justify-content-between lh-sm">
-                        <button type="button" className="btn-close" aria-label="Close"></button>
+                        <button type="button" className="btn-close" aria-label="Close" onClick={ () => {deleteProduct(item.name.split("-").join(" "))}}></button>
                         <div>
                             <h6 className="my-0"> {item.name.split("-").join(" ")} </h6>
                             <small className="text-muted">Brief description</small>
