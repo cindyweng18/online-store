@@ -11,7 +11,6 @@ CREATE TABLE AvoidList (
 CREATE TABLE Clerk (
   id INT AUTO_INCREMENT,
   name TEXT,
-  password TEXT,
   complaintsreceived TEXT,
   PRIMARY KEY (id)
   );
@@ -50,7 +49,6 @@ CREATE TABLE ComputerPartsCompany (
 CREATE TABLE DeliveryCompany (
   id INT AUTO_INCREMENT,
   name TEXT,
-  password TEXT,
   complaintsreceived TEXT,
   PRIMARY KEY (id)
   );
@@ -58,7 +56,6 @@ CREATE TABLE DeliveryCompany (
 CREATE TABLE Manager (
   id INT AUTO_INCREMENT,
   name TEXT,
-  password TEXT,
   PRIMARY KEY (id)
   );
 
@@ -75,6 +72,7 @@ CREATE TABLE Parts (
   company_id INT,
   PRIMARY KEY (id)
   );
+
 
 CREATE TABLE Reviews (
   id INT AUTO_INCREMENT,
@@ -110,40 +108,34 @@ CREATE TABLE Cart (
   price INT
 );
 
-CREATE TABLE CreditCard (
-  id INT AUTO_INCREMENT,
-  name TEXT,
-  number TEXT,
-  cvc TEXT,
-  expirationDate TEXT,
-  email TEXT,
-  PRIMARY KEY (id)
-);
-
-CREATE TABLE Orders (
-  id INT AUTO_INCREMENT,
-  email TEXT,
-  productNames TEXT,
-  tracking_info INT,
-  delivery_company TEXT,
-  PRIMARY KEY (id)
-);
-
 INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) 
-  VALUES ('Part1','example','macOS','Gaming','Intel',1000,0,0,0);
-
-INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) 
-  VALUES ('Part2','example2','macOS','Gaming','Intel',1000,0,0,0);
+  values ('Part1','example','macOS','Gaming','Intel',1000,0,0,0);
 
 INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion) 
-  VALUES ('Part1','example','macOS','Gaming','Intel',1000,0,0);
+  values ('Part1','example','macOS','Gaming','Mac',1000,0,0);
 
-INSERT INTO DeliveryCompany (name,password) VALUES ('Fedex','company1');
-INSERT INTO DeliveryCompany (name,password) VALUES ('UPS','company2');
+INSERT INTO DeliveryCompany (name) VALUES ('Fedex');
+INSERT INTO DeliveryCompany (name) VALUES ('UPS');
 
-INSERT INTO Manager (name,password) VALUES ('Sandra Patton','manager1');
+INSERT INTO Manager (name) VALUES ('Sandra Patton');
 
-INSERT INTO Clerk (name,password) VALUES ('Jack Hernandez','clerk1');
+INSERT INTO Clerk (name) VALUES ('Jack Hernandez');
 
 INSERT INTO ComputerPartsCompany (name) VALUES ('Apple');
 
+
+
+/*
+***Load CSV of parts and systems***
+LOAD DATA LOCAL INFILE '\CPUParts1.csv' INTO TABLE parts(name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) FIELDS TERMINATED BY ',' Lines terminated by '\n' IGNORE 1 LINES;
+
+LOAD DATA INFILE 'C:\Users\Krx421\Desktop\grove_classes\CPUParts1.csv' INTO TABLE parts FIELDS TERMINATED BY ',' Lines terminated by '\n' IGNORE 1 LINES;
+
+
+load data local infile '\CPUParts1.csv'
+into table parts
+fields terminated by ','  
+ignore 1 lines
+(name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id)
+set id = null;
+*/
