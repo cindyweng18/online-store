@@ -3,5 +3,5 @@
     "port": 9999,
     "user": "REPLACE",
     "password": "PUT YOUR PASSWORD HERE",
-    "database": "ImageCaravan"
+    "database": "OnlineStore"
 }

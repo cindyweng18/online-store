@@ -11,6 +11,7 @@ CREATE TABLE AvoidList (
 CREATE TABLE Clerk (
   id INT AUTO_INCREMENT,
   name TEXT,
+  password TEXT,
   complaintsreceived TEXT,
   PRIMARY KEY (id)
   );
@@ -49,6 +50,7 @@ CREATE TABLE ComputerPartsCompany (
 CREATE TABLE DeliveryCompany (
   id INT AUTO_INCREMENT,
   name TEXT,
+  password TEXT,
   complaintsreceived TEXT,
   PRIMARY KEY (id)
   );
@@ -56,6 +58,7 @@ CREATE TABLE DeliveryCompany (
 CREATE TABLE Manager (
   id INT AUTO_INCREMENT,
   name TEXT,
+  password TEXT,
   PRIMARY KEY (id)
   );
 
@@ -117,18 +120,30 @@ CREATE TABLE CreditCard (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE Orders (
+  id INT AUTO_INCREMENT,
+  email TEXT,
+  productNames TEXT,
+  tracking_info INT,
+  delivery_company TEXT,
+  PRIMARY KEY (id)
+);
+
 INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) 
-  values ('Part1','example','macOS','Gaming','Intel',1000,0,0,0);
+  VALUES ('Part1','example','macOS','Gaming','Intel',1000,0,0,0);
+
+INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) 
+  VALUES ('Part2','example2','macOS','Gaming','Intel',1000,0,0,0);
 
 INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion) 
-  values ('Part1','example','macOS','Gaming','Mac',1000,0,0);
+  VALUES ('Part1','example','macOS','Gaming','Intel',1000,0,0);
 
-INSERT INTO DeliveryCompany (name) VALUES ('Fedex');
-INSERT INTO DeliveryCompany (name) VALUES ('UPS');
+INSERT INTO DeliveryCompany (name,password) VALUES ('Fedex','company1');
+INSERT INTO DeliveryCompany (name,password) VALUES ('UPS','company2');
 
-INSERT INTO Manager (name) VALUES ('Sandra Patton');
+INSERT INTO Manager (name,password) VALUES ('Sandra Patton','manager1');
 
-INSERT INTO Clerk (name) VALUES ('Jack Hernandez');
+INSERT INTO Clerk (name,password) VALUES ('Jack Hernandez','clerk1');
 
 INSERT INTO ComputerPartsCompany (name) VALUES ('Apple');
 
