@@ -638,6 +638,7 @@ def viewaccount():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
+
 # @app.route ('/checkout', methods = ["OPTIONS", 'POST'])
 # @cross_origin()
 # def checkout():
@@ -719,6 +720,45 @@ def viewaccount():
 #             }
 #             print("ERROR MSG:",str(e))
 #             return build_actual_response(jsonify(body)), 400
+
+
+@app.route('/viewaccount', methods = ['OPTIONS', 'GET'])
+@cross_origin()
+def viewaccount():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'GET':
+        try:
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            name = request.args.get('fullName')
+            cur.execute("SELECT * FROM users WHERE fullname = ?",(name,))
+            userData = cur.fetchall()
+            print(userData)
+
+            response = {}
+            products = []
+            for part in userData:
+                productOBJ = {}
+                productOBJ["fullName"] = part[1]
+                productOBJ["email"] = part[2]
+                productOBJ["homeAddress"] = part[3]
+                productOBJ["creditCard"] = part[4]
+                productOBJ["availableMoney"] = part[5]
+                if productOBJ not in products:
+                    products.append(productOBJ)
+            response["userData"] = products
+
+            conn.close()
+            return build_actual_response(jsonify(response))
+
+        except Exception as e:
+            body = {
+                'Error': "Can't display user.",
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
 
 if __name__ == '__main__':
     app.run()

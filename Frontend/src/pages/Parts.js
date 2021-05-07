@@ -1,39 +1,74 @@
 import Footer from "./Footer";
 import Nav from "./Nav";
-import React from 'react';
+import React, { useEffect } from 'react';
+import axios from "axios";
+import { useState } from "react";
 
-// TODO: Modify once backend is finished.
 function Parts(props) {
-    // 'params' are the arguments given on the URL - os, purpose, arch - passed by Desktop
+    // 'params' are the arguments given on the URL - os, purpose, arch - passed by Computer file
     const { params } = props.match;
+    const [message, setMessage] = useState("");
+    const [items, setItems] = useState([]);
+
+    useEffect(() => {
+        async function fetchItems() {
+            axios.get(`/builddesktop?operating_system=${params.os}&main_purpose=${params.purpose}&architecture=${params.arch}`)
+            .then(async (response) => {
+                setItems(response.data['partsData']);
+            })
+            .catch((e) => setMessage("error"));
+        }
+    fetchItems();
+    }, [params]);
+    
+    
     return (
         <>
             <Nav />
-            <div>
-                <h1> Helloooo</h1>
-                <p> {params.os} </p>
-            </div>
+            <h1> {message} </h1>
 
-
-
-            <div class="container">
-                <div class="row justify-content-start">
-                    <div class="col-6 col-sm-2">
-                        <nav class="nav flex-column">
+            <div className="container"> 
+                <div className="row justify-content-start">
+                    <div className="col-6 col-sm-2">
+                        <nav className="nav flex-column">
                             <h2> Parts </h2>
-                            <a class="nav-link active" href="/">CPU</a>
-                            <a class="nav-link" href="/">GPU</a>
-                            <a class="nav-link" href="/">RAM</a>
-                            <a class="nav-link" href="/">Hard Disk</a>
-                            <a class="nav-link" href="/">Battery</a>
+                            <a className="nav-link active" href="/">CPU</a>
+                            <a className="nav-link" href="/">GPU</a>
+                            <a className="nav-link" href="/">RAM</a>
+                            <a className="nav-link" href="/">Hard Disk</a>
+                            <a className="nav-link" href="/">Battery</a>
                         </nav>
                     </div>
-                    <div class="col">
-                        <div class="album py-5 bg-light">
-                            <div class="container">
-                                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-                                    <div class="col">
-                                    <div class="card shadow-sm">
+                    <div className="col">
+                        <div className="album py-5 bg-light">
+                            <div className="container">
+                                <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+                                    {items.map(item =>
+                                        <div className="col">
+                                            <div className="card shadow-sm">
+                                                <img src="..." class="card-img-top" alt="..." />
+                                                <div className="card-body">
+                                                    <h2> {item.name} </h2> 
+                                                    
+                                                    <p className="card-text">11th Gen Intel® Core™ i5 11400F (6-Core, 12MB Cache, 2.6Ghz to 4.4GHz) </p>
+                                                    <p className="card-text">Windows 10 Home 64-bit English </p>
+                                                    <p className="card-text"> NVIDIA® GeForce® GTX 1650 SUPER™ 4GB GDDR6 </p>
+                                                    <p className="card-text"> 8GB Single Channel DDR4 XMP at 3200MHz; up to 128GB (additional memory sold separately) </p>
+                                                    <p className="card-text">1TB 7200RPM SATA 6Gb/s </p>
+                                                    <p className="card-text"> Estimated Value: ${item.price}</p>
+                                                    <div className="d-flex justify-content-between align-items-center">
+                                                        <div className="btn-group">
+                                                            <a className="btn btn-primary" href={`/desktops/${params.os}/${params.purpose}/${params.arch}/${item.name.split(" ").join("-")}`} role="button">Customize and Buy</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                               
+                                    <div className="col">
+                                    <div className="card shadow-sm">
                                     <svg width="300" height="300" viewBox="0 0 426 491" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
 <rect width="426" height="491" fill="url(#pattern0)"/>
 <defs>
@@ -44,24 +79,24 @@ function Parts(props) {
 </defs>
 </svg>
 
-                                        <div class="card-body">
+                                        <div className="card-body">
                                             <h2> Dell Alienware Aurora R12 Desktop</h2> 
-                                            <p class="card-text">11th Gen Intel® Core™ i5 11400F (6-Core, 12MB Cache, 2.6Ghz to 4.4GHz) </p>
-                                            <p class="card-text">Windows 10 Home 64-bit English </p>
-                                            <p class="card-text"> NVIDIA® GeForce® GTX 1650 SUPER™ 4GB GDDR6 </p>
-                                            <p class="card-text"> 8GB Single Channel DDR4 XMP at 3200MHz; up to 128GB (additional memory sold separately) </p>
-                                            <p class="card-text">1TB 7200RPM SATA 6Gb/s </p>
-                                            <p class="card-text"> Estimated Value: $1,099.99</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="btn-group">
-                                            <a class="btn btn-primary" href={`/desktops/${params.os}/${params.purpose}/${params.arch}/dell-alienware-aurora-r12-desktop`} role="button">Customize and Buy</a>
+                                            <p className="card-text">11th Gen Intel® Core™ i5 11400F (6-Core, 12MB Cache, 2.6Ghz to 4.4GHz) </p>
+                                            <p className="card-text">Windows 10 Home 64-bit English </p>
+                                            <p className="card-text"> NVIDIA® GeForce® GTX 1650 SUPER™ 4GB GDDR6 </p>
+                                            <p className="card-text"> 8GB Single Channel DDR4 XMP at 3200MHz; up to 128GB (additional memory sold separately) </p>
+                                            <p className="card-text">1TB 7200RPM SATA 6Gb/s </p>
+                                            <p className="card-text"> Estimated Value: $1,099.99</p>
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <div className="btn-group">
+                                            <a className="btn btn-primary" href={`/desktops/${params.os}/${params.purpose}/${params.arch}/dell-alienware-aurora-r12-desktop`} role="button">Customize and Buy</a>
                                             </div>
                                         </div>
                                         </div>
                                     </div>
                                     </div>
-                                    <div class="col">
-                                    <div class="card shadow-sm">
+                                    <div className="col">
+                                    <div className="card shadow-sm">
                                     <svg width="300" height="300" viewBox="0 0 247 402" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
 <rect width="247" height="402" fill="url(#pattern1)"/>
 <defs>
@@ -72,24 +107,24 @@ function Parts(props) {
 </defs>
 </svg>
 
-                                        <div class="card-body">
+                                        <div className="card-body">
                                         <h2> Dell G5 Gaming Desktop</h2> 
-                                        <p class="card-text">10th Gen Intel® Core™ i5-10400F processor(6-Core, 12M Cache, 2.9GHz to 4.3GHz)</p>
-                                        <p class="card-text"> Windows 10 Home 64bit English </p>
-                                        <p class="card-text"> NVIDIA® GeForce® GTX 1650 SUPER™ 4GB GDDR6 </p>
-                                        <p class="card-text"> 8GB, 1x8GB, DDR4, 2666MHz </p>
-                                        <p class="card-text"> 1TB 7200RPM 3.5" SATA HDD </p>
-                                        <p class="card-text"> Estimated Value: $899.99 </p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="btn-group">
-                                            <button type="button" class="btn btn-sm btn-outline-secondary">Customize and Buy</button>
+                                        <p className="card-text">10th Gen Intel® Core™ i5-10400F processor(6-Core, 12M Cache, 2.9GHz to 4.3GHz)</p>
+                                        <p className="card-text"> Windows 10 Home 64bit English </p>
+                                        <p className="card-text"> NVIDIA® GeForce® GTX 1650 SUPER™ 4GB GDDR6 </p>
+                                        <p className="card-text"> 8GB, 1x8GB, DDR4, 2666MHz </p>
+                                        <p className="card-text"> 1TB 7200RPM 3.5" SATA HDD </p>
+                                        <p className="card-text"> Estimated Value: $899.99 </p>
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <div className="btn-group">
+                                            <button type="button" className="btn btn-sm btn-outline-secondary">Customize and Buy</button>
                                             </div>
                                         </div>
                                         </div>
                                     </div>
                                     </div>
-                                    <div class="col">
-                                    <div class="card shadow-sm">
+                                    <div className="col">
+                                    <div className="card shadow-sm">
                                     <svg width="300" height="300" viewBox="0 0 411 640" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
 <rect width="411" height="640" fill="url(#pattern2)"/>
 <defs>
@@ -100,16 +135,16 @@ function Parts(props) {
 </defs>
 </svg>
 
-                                        <div class="card-body">
+                                        <div className="card-body">
                                             <h2> ASUS ROG Gaming Desktop </h2>
-                                        <p class="card-text"> Intel Core i7-9700F</p>
-                                        <p class="card-text"> NVIDIA GeForce RTX 2070 SUPER</p>
-                                        <p class="card-text">  16GB Memory </p>
-                                        <p class="card-text"> 1TB HDD + 512GB SSD</p>
-                                        <p class="card-text"> Estimated Value: $1,549.99</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="btn-group">
-                                            <button type="button" class="btn btn-sm btn-outline-secondary">Customize and Buy</button>
+                                        <p className="card-text"> Intel Core i7-9700F</p>
+                                        <p className="card-text"> NVIDIA GeForce RTX 2070 SUPER</p>
+                                        <p className="card-text">  16GB Memory </p>
+                                        <p className="card-text"> 1TB HDD + 512GB SSD</p>
+                                        <p className="card-text"> Estimated Value: $1,549.99</p>
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <div className="btn-group">
+                                            <button type="button" className="btn btn-sm btn-outline-secondary">Customize and Buy</button>
                                             </div>
                                         </div>
                                         </div>

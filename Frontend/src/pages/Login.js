@@ -28,8 +28,9 @@ function Login() {
       .then(async (response) => {
         localStorage.clear()
         localStorage.setItem("route", route);
-        localStorage.setItem("session", response.data['loginData']['fullName'].replace(" ", ""));
-        history.push(`/${route}/${response.data['loginData']['fullName'].replace(" ", "")}`);
+        localStorage.setItem("userEmail", email);
+        localStorage.setItem("session", response.data['loginData']['fullName'].replace(" ", "-"));
+        history.push(`/${route}/${response.data['loginData']['fullName'].replace(" ", "-")}`);
       })
       .catch((e) => setMessage("error"));
       };
