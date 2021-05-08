@@ -69,6 +69,7 @@ CREATE TABLE Parts (
   operating_system TEXT,
   main_purpose TEXT,
   architecture TEXT,
+  type TEXT,
   price INT,
   voting INT,
   discussion_id INT,
@@ -123,20 +124,35 @@ CREATE TABLE CreditCard (
 CREATE TABLE Orders (
   id INT AUTO_INCREMENT,
   email TEXT,
-  productNames TEXT,
+  total_price INT,
   tracking_info INT,
   delivery_company TEXT,
   PRIMARY KEY (id)
 );
 
-INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) 
-  VALUES ('Part1','example','macOS','Gaming','Intel',1000,0,0,0);
+INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, type, price, voting, discussion_id, company_id) 
+  VALUES ('Intel i5','example','Windows','Gaming','Intel', 'CPU', 1000,8,0,0);
 
-INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) 
-  VALUES ('Part2','example2','macOS','Gaming','Intel',1000,0,0,0);
+INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, type, price, voting, discussion_id, company_id) 
+  VALUES ('Apple M1 Chip','example','macOS','Business','Intel', 'CPU', 1700,7,0,0);
+
+INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, type, price, voting, discussion_id, company_id) 
+  VALUES ('Samsung 390 Series 24" LED Curved FHD FreeSync Monitor','example2','Windows','Business','Intel', 'Monitor',800,9,0,0);
 
 INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion) 
   VALUES ('Part1','example','macOS','Gaming','Intel',1000,0,0);
+
+INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, type, voting, discussion) 
+  VALUES ('Entry level gaming build','example','Windows','Gaming','Intel',2000, 'desktop', 9.5,0);
+
+INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, type, voting, discussion) 
+  VALUES ('Professional gaming build','example','Windows','Gaming','Intel',4000,'desktop', 10,0);
+
+INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, type, voting, discussion) 
+  VALUES ('Macbook Pro 2020','example','macOS','Business','Intel',2500,'laptop', 9.5,0);
+
+INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, type, voting, discussion) 
+  VALUES ('ASUS ROG Zephyrus G14 14" Gaming Laptop','example','Windows','Gaming','AMD',1700,'laptop', 8.5,0);
 
 INSERT INTO DeliveryCompany (name,password) VALUES ('Fedex','company1');
 INSERT INTO DeliveryCompany (name,password) VALUES ('UPS','company2');
