@@ -60,8 +60,9 @@ CREATE TABLE Manager (
   );
 
 CREATE TABLE Parts (
-  id INT AUTO_INCREMENT,
+  id INT,
   name TEXT,
+  part_type TEXT,
   imageBase64 LONGTEXT,
   operating_system TEXT,
   main_purpose TEXT,
@@ -108,11 +109,7 @@ CREATE TABLE Cart (
   price INT
 );
 
-INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) 
-  values ('Part1','example','macOS','Gaming','Intel',1000,0,0,0);
 
-INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion) 
-  values ('Part1','example','macOS','Gaming','Mac',1000,0,0);
 
 INSERT INTO DeliveryCompany (name) VALUES ('Fedex');
 INSERT INTO DeliveryCompany (name) VALUES ('UPS');
@@ -124,13 +121,20 @@ INSERT INTO Clerk (name) VALUES ('Jack Hernandez');
 INSERT INTO ComputerPartsCompany (name) VALUES ('Apple');
 
 
-
 /*
+
 ***Load CSV of parts and systems***
 LOAD DATA LOCAL INFILE '\CPUParts1.csv' INTO TABLE parts(name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) FIELDS TERMINATED BY ',' Lines terminated by '\n' IGNORE 1 LINES;
 
-LOAD DATA INFILE 'C:\Users\Krx421\Desktop\grove_classes\CPUParts1.csv' INTO TABLE parts FIELDS TERMINATED BY ',' Lines terminated by '\n' IGNORE 1 LINES;
+INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) 
+  values ('Part1','example','macOS','Gaming','Intel',1000,0,0,0);
 
+INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion) 
+  values ('Part1','example','macOS','Gaming','Mac',1000,0,0);
+
+
+LOAD DATA INFILE 'C:\Users\Krx421\Desktop\grove_classes\CPUParts1.csv' INTO TABLE parts FIELDS TERMINATED BY ',' Lines terminated by '\n' IGNORE 1 LINES;
+*/
 
 load data local infile '\CPUParts1.csv'
 into table parts
@@ -138,4 +142,3 @@ fields terminated by ','
 ignore 1 lines
 (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id)
 set id = null;
-*/
