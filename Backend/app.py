@@ -367,6 +367,47 @@ def viewitem():
             rowData.append(request.args.get('architecture'))
             rowData.append(request.args.get('name'))
 
+            cur.execute("SELECT * FROM Parts where operating_system = ? AND main_purpose = ? AND architecture = ? AND name = ? ", tuple(rowData))
+            partData = cur.fetchall()
+            response = {}
+            parts = []
+            for part in partData:
+                partOBJ = {}
+                partOBJ["name"] = part[1]
+                partOBJ["imageBase64"] = part[2]
+                partOBJ["price"] = part[7]
+                partOBJ["voting"] = part[9]
+                partOBJ["discussion_id"] = part[10]
+                if partOBJ not in parts:
+                    parts.append(partOBJ)
+            response["partData"] = parts
+            conn.close()
+
+            return build_actual_response(jsonify(response))
+
+        except Exception as e:
+            body = {
+                'Error': "This combination does not exist, sorry!",
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/viewcomputer', methods = ['OPTIONS','GET'])
+@cross_origin()
+def viewcomputer():
+    if request.method == "OPTIONS":
+        return build_preflight_response
+    elif request.method == "GET":
+        try: 
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            rowData = []
+            rowData.append(request.args.get('operating_system'))
+            rowData.append(request.args.get('main_purpose'))
+            rowData.append(request.args.get('architecture'))
+            rowData.append(request.args.get('name'))
+
             cur.execute("SELECT * FROM computer where operating_system = ? AND main_purpose = ? AND architecture = ? AND name = ? ", tuple(rowData))
             computerData = cur.fetchall()
             response = {}
@@ -688,15 +729,15 @@ def checkout():
             jsonData = request.json
 
             rowData = []
+            rowData.append(jsonData["customerName"])
             rowData.append(jsonData["email"])
-            rowData.append(jsonData["productNames"])
             rowData.append(jsonData["totalPrice"])
-            rowData.append(jsonData["payment_method"])
+            rowData.append(jsonData["paymentMethod"])
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
-            if jsonData["payment_method"] == "money":
+            if jsonData["paymentMethod"] == "money":
                 cur.execute("SELECT availablemoney FROM Users WHERE email = ?", (jsonData["email"],))
                 infoData = cur.fetchone()
 
@@ -705,7 +746,7 @@ def checkout():
                     cur.execute("UPDATE users SET availablemoney = ? WHERE email = ?", (money,jsonData["email"],))
                     conn.commit()
 
-                    cur.execute("INSERT INTO Orders (email, productNames) VALUES (?,?)", tuple(rowData))
+                    cur.execute("INSERT INTO Orders (customerName,email,totalPrice) VALUES (?,?,?)", tuple(rowData))
                     conn.commit()
 
                     cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
@@ -732,7 +773,7 @@ def checkout():
                         "Message" : "You don't have enough money! You can either use another payment method or put more money into your account."
                     }))
             else:
-                cur.execute("INSERT INTO Orders (email, name) VALUES (?,?)", tuple(rowData))
+                cur.execute("INSERT INTO Orders (customerName,email, totalPrice) VALUES (?,?,?)", tuple(rowData))
                 conn.commit()
 
                 cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
@@ -760,6 +801,40 @@ def checkout():
         except Exception as e:
             body = {
                 'Error': "Can't complete your order!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/getorders', methods = ['OPTIONS', 'GET'])
+@cross_origin()
+def getorders():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'GET':
+        try:
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            email = request.args.get('email')
+            cur.execute("SELECT * FROM orders JOIN users on users.email = orders.email where orders.email = ?", (email,))
+            ordersData = cur.fetchall()
+            print(ordersData)
+
+            response = {}
+            orders = []
+            for order in ordersData:
+                orderOBJ = {}
+                orderOBJ["customerName"] = order[1]
+                orderOBJ["homeaddress"] = order[9]
+                if orderOBJ not in orders:
+                    orders.append(orderOBJ)
+            response["ordersData"] = orders
+
+            conn.close()
+            return build_actual_response(jsonify(response))
+        except Exception as e:
+            body = {
+                'Error': "Can't view orders!"
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
