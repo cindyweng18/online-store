@@ -624,7 +624,7 @@ def viewcart():
                  productOBJ["name"] = part[0]
                  productOBJ["imageBase64"] = part[1]
                  productOBJ["price"] = part[2]
-                 #productOBJ["totalPrice"] = sum(part[2])
+                 productOBJ["totalPrice"] = sum(part[2])
                  if productOBJ not in products:
                      products.append(productOBJ)
              response["cartData"]["allProducts"] = products
