@@ -11,6 +11,9 @@ import Item from "./Item";
 import Checkout from "./Checkout";
 import Computer from "./Computer";
 import Discussion from "./Discussion";
+import Employee from "./EmployeeLogin";
+import Delivery from "./Delivery";
+import Clerk from "./Clerk";
 
 const Routes = () => {
   return (
@@ -21,6 +24,9 @@ const Routes = () => {
         <Route exact={true} path={"/login"} component={Login} />
         <Route exact={true} path={"/register"} component={Register} />
         <Route exact={true} path={"/account/:user"} component={Account} />
+        <Route exact={true} path={"/employeelogin"} component={Employee} />
+        <Route exact={true} path={"/delivery/:name"} component={Delivery} />
+        <Route exact={true} path={"/clerk/:name"} component={Clerk} />
         <Route exact={true} path={"/checkout"} component={Checkout} />
         <Route exact={true} path={"/discussion"} component={Discussion} />
         <Route exact={true} path={"/:computer"} component={Computer} />

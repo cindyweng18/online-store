@@ -5,7 +5,7 @@ import {useForm} from "react-hook-form";
 import axios from "axios";
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
-import { useState} from "react";
+import { useState, useEffect} from "react";
 //import { useHistory } from 'react-router-dom';
 
 // TODO: Modify once backend is finished.
@@ -14,26 +14,37 @@ function Item(props) {
     const { params } = props.match;
     const [show, setShow] = useState(false);
     const [message, setMessage] = useState("");
+    const [item, setItem] = useState({});
     const {register, handleSubmit} = useForm();
     var user = localStorage.getItem("session");
-    var display = "none";
+    var email = localStorage.getItem("userEmail");
 
+    // Don't display 'Add to Cart' button if user not logged in
+    var display = "none";
     if (user !== null) {
         display = "";
     };
 
+    // Customization, TODO: Continue fixing it
     const onSubmit = (d) => {
         alert(JSON.stringify(d));
     };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const getItem = await axios.get(`/viewitem?operating_system=${params.os}&main_purpose=${params.purpose}&architecture=${params.arch}&name=${params.name.split("-").join(" ")}`);
+            setItem(getItem.data['computerData'][0]);
+        }
+        fetchData();
+    }, [params]);
 
     function addToCart(event) {
         event.preventDefault();
         axios
         .post("/addtocart", {
-            email: "cindy@test.com",
+            email: email,
             name: params.name.split("-").join(" "),
-            imageBase64: "example",
-            price: 2000
+            price: item['price']
         })
         .then(async () => setShow(true))
         .catch(async (e) => setMessage(e.response.data.message));
@@ -62,13 +73,13 @@ function Item(props) {
                 </div>
                 <div className="py-5 col">
                     <h2> {params.name.split("-").join(" ")} </h2>
-                    <p> [Rating] </p>
+                    <p> Voting: {item['voting']}/10 </p>
                     <p className="card-text"> 11th Gen Intel® Core™ i7 11700KF (8-Core, 16MB Cache, 3.6GHz to 5GHz w/Intel® Turbo Boost Max) </p>
                     <p className="card-text">Windows 10 Home 64-bit English </p>
                     <p className="card-text"> NVIDIA® GeForce® GTX 1650 SUPER™ 4GB GDDR6 </p>
                     <p className="card-text"> 8GB Single Channel DDR4 XMP at 3200MHz; up to 128GB (additional memory sold separately) </p>
                     <p className="card-text">1TB 7200RPM SATA 6Gb/s </p>
-                    <h4> $1,099.99 </h4>
+                    <h4> ${item['price']} </h4>
                     <button type="button" className="btn btn-success" onClick={addToCart} style={{display: display}}> Add to Cart </button>
                 </div>
             </div>

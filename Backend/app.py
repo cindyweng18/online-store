@@ -340,7 +340,47 @@ def choosecomputer():
                 if computerOBJ not in computers:
                     computers.append(computerOBJ)
             response["computerData"] = computers
+            conn.close()
 
+            return build_actual_response(jsonify(response))
+
+        except Exception as e:
+            body = {
+                'Error': "This combination does not exist sorry!",
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/viewitem', methods = ['OPTIONS','GET'])
+@cross_origin()
+def viewitem():
+    if request.method == "OPTIONS":
+        return build_preflight_response
+    elif request.method == "GET":
+        try: 
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            rowData = []
+            rowData.append(request.args.get('operating_system'))
+            rowData.append(request.args.get('main_purpose'))
+            rowData.append(request.args.get('architecture'))
+            rowData.append(request.args.get('name'))
+
+            cur.execute("SELECT * FROM computer where operating_system = ? AND main_purpose = ? AND architecture = ? AND name = ? ", tuple(rowData))
+            computerData = cur.fetchall()
+            response = {}
+            computers = []
+            for computer in computerData:
+                computerOBJ = {}
+                computerOBJ["name"] = computer[1]
+                computerOBJ["imageBase64"] = computer[2]
+                computerOBJ["price"] = computer[7]
+                computerOBJ["voting"] = computer[9]
+                computerOBJ["discussion_id"] = computer[10]
+                if computerOBJ not in computers:
+                    computers.append(computerOBJ)
+            response["computerData"] = computers
             conn.close()
 
             return build_actual_response(jsonify(response))
@@ -584,11 +624,11 @@ def viewcart():
                  productOBJ["name"] = part[0]
                  productOBJ["imageBase64"] = part[1]
                  productOBJ["price"] = part[2]
-                 #productOBJ["totalPrice"] = sum(part[2])
+                 productOBJ["totalPrice"] = sum(part[2])
                  if productOBJ not in products:
                      products.append(productOBJ)
              response["cartData"]["allProducts"] = products
-             response["cartData"]["totalPrice"] = float(priceData[0])
+             response["cartData"]["totalPrice"] = 0 if priceData[0] is None else float(priceData[0])
 
              conn.close()
              return build_actual_response(jsonify(response))
@@ -638,124 +678,88 @@ def viewaccount():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
-
-# @app.route ('/checkout', methods = ["OPTIONS", 'POST'])
-# @cross_origin()
-# def checkout():
-#     if request.method == 'OPTIONS':
-#         return build_preflight_response
-#     elif request.method == 'POST':
-#         try:
-#             jsonData = request.json
-
-#             rowData = []
-#             rowData.append(jsonData["email"])
-#             rowData.append(jsonData["productNames"])
-#             rowData.append(jsonData["totalPrice"])
-#             rowData.append(jsonData["payment_method"])
-
-#             conn = mariadb.connect(**config)
-#             cur = conn.cursor()
-
-#             if jsonData["payment_method"] == "money":
-#                 cur.execute("SELECT availablemoney FROM Users WHERE email = ?", (jsonData["email"],))
-#                 infoData = cur.fetchone()
-
-#                 money = infoData[0] - jsonData["totalPrice"]
-#                 cur.execute("UPDATE users SET availablemoney = ? WHERE email = ?", (money,jsonData["email"],))
-#                 conn.commit()
-
-#                 cur.execute("INSERT INTO Orders (email, productNames) VALUES (?,?)", tuple(rowData))
-#                 conn.commit()
-
-#                 cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
-#                 product = cur.fetchone()
-#                 print(product)
-#                 product = product[0]
-#                 result = json.loads(product)
-#                 print(result)
-
-#                 cur.execute("SELECT max(id) from orders")
-#                 id = cur.fetchall()
-#                 id = id[0][0]
-#                 print(id)
-
-#                 result.append(id)
-#                 final = json.dumps(result)
-
-#                 productList = []
-#                 for product in result:
-#                     cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
-#                     conn.commit()
-            
-#             else:
-#                 cur.execute("INSERT INTO Orders (email, name) VALUES (?,?)", tuple(rowData))
-#                 conn.commit()
-
-#                 cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
-#                 product = cur.fetchone()
-#                 product = product[0]
-#                 result = json.loads(product)
-
-#                 cur.execute("SELECT max(id) from orders")
-#                 id = cur.fetchall()
-#                 id = id[0][0]
-
-#                 result.append(id)
-#                 final = json.dumps(result)
-
-#                 productList = []
-#                 for product in result:
-#                     cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
-#                     conn.commit()
-                
-#             conn.close()
-            
-#             return build_actual_response(jsonify({
-#                 "Message" : "You have successfully completed your order!"
-#             })) , 200
-#         except Exception as e:
-#             body = {
-#                 'Error': "Can't complete your order!"
-#             }
-#             print("ERROR MSG:",str(e))
-#             return build_actual_response(jsonify(body)), 400
-
-
-@app.route('/viewaccount', methods = ['OPTIONS', 'GET'])
+@app.route ('/checkout', methods = ["OPTIONS", 'POST'])
 @cross_origin()
-def viewaccount():
+def checkout():
     if request.method == 'OPTIONS':
         return build_preflight_response
-    elif request.method == 'GET':
+    elif request.method == 'POST':
         try:
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["email"])
+            rowData.append(jsonData["productNames"])
+            rowData.append(jsonData["totalPrice"])
+            rowData.append(jsonData["payment_method"])
+
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
-            name = request.args.get('fullName')
-            cur.execute("SELECT * FROM users WHERE fullname = ?",(name,))
-            userData = cur.fetchall()
-            print(userData)
+            if jsonData["payment_method"] == "money":
+                cur.execute("SELECT availablemoney FROM Users WHERE email = ?", (jsonData["email"],))
+                infoData = cur.fetchone()
 
-            response = {}
-            products = []
-            for part in userData:
-                productOBJ = {}
-                productOBJ["fullName"] = part[1]
-                productOBJ["email"] = part[2]
-                productOBJ["homeAddress"] = part[3]
-                productOBJ["creditCard"] = part[4]
-                productOBJ["availableMoney"] = part[5]
-                if productOBJ not in products:
-                    products.append(productOBJ)
-            response["userData"] = products
+                if infoData[0] >= jsonData["totalPrice"]:
+                    money = infoData[0] - jsonData["totalPrice"]
+                    cur.execute("UPDATE users SET availablemoney = ? WHERE email = ?", (money,jsonData["email"],))
+                    conn.commit()
 
+                    cur.execute("INSERT INTO Orders (email, productNames) VALUES (?,?)", tuple(rowData))
+                    conn.commit()
+
+                    cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
+                    product = cur.fetchone()
+                    print(product)
+                    product = product[0]
+                    result = json.loads(product)
+                    print(result)
+
+                    cur.execute("SELECT max(id) from orders")
+                    id = cur.fetchall()
+                    id = id[0][0]
+                    print(id)
+
+                    result.append(id)
+                    final = json.dumps(result)
+
+                    productList = []
+                    for product in result:
+                        cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
+                        conn.commit()
+                else: 
+                    return build_actual_response(jsonify({
+                        "Message" : "You don't have enough money! You can either use another payment method or put more money into your account."
+                    }))
+            else:
+                cur.execute("INSERT INTO Orders (email, name) VALUES (?,?)", tuple(rowData))
+                conn.commit()
+
+                cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
+                product = cur.fetchone()
+                product = product[0]
+                result = json.loads(product)
+
+                cur.execute("SELECT max(id) from orders")
+                id = cur.fetchall()
+                id = id[0][0]
+
+                result.append(id)
+                final = json.dumps(result)
+
+                productList = []
+                for product in result:
+                    cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
+                    conn.commit()
+                
             conn.close()
-            return build_actual_response(jsonify(response))
-
+            
+            return build_actual_response(jsonify({
+                "Message" : "You have successfully completed your order!"
+            })) , 200
         except Exception as e:
             body = {
-                'Error': "Can't display user.",
+                'Error': "Can't complete your order!"
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
