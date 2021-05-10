@@ -11,11 +11,12 @@ function Discussion() {
     const email = localStorage.getItem("userEmail");
     const [type, setType] = useState("Review an Item");
     const [complaineeType, setComplaineeType] = useState("Item - Computer or Computer Parts");
-    const [complaineeName, setComplaineeName] = useState("");
-    const [complainTitle, setComplainTitle] = useState("");
-    const [description, setDescription] = useState("");
+    // const [complaineeName, setComplaineeName] = useState("");
+    // const [complainTitle, setComplainTitle] = useState("");
+    // const [description, setDescription] = useState("");
     const [validated, setValidated] = useState(false);
 
+    console.log(type, complaineeType);
     const handleSubmit = (event) => {
         const form = event.currentTarget;
         if (form.checkValidity() === false) {

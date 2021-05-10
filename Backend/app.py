@@ -717,8 +717,7 @@ def viewcart():
              for part in cartData:
                  productOBJ = {}
                  productOBJ["name"] = part[0]
-                 productOBJ["imageBase64"] = part[1]
-                 productOBJ["price"] = part[2]
+                 productOBJ["price"] = part[1]
                  products.append(productOBJ)
              response["cartData"]["allProducts"] = products
              response["cartData"]["totalPrice"] = 0 if priceData[0] is None else float(priceData[0])
@@ -744,7 +743,7 @@ def viewaccount():
             cur = conn.cursor()
 
             email = request.args.get('email')
-            cur.execute("SELECT fullname,users.email,homeaddress, right(number,4), availablemoney FROM users JOIN creditcard on users.email = creditcard.email WHERE users.email = ?",(email,))
+            cur.execute("SELECT fullname,users.email,homeaddress, right(number,4), availablemoney, purchasehistory FROM users JOIN creditcard on users.email = creditcard.email WHERE users.email = ?",(email,))
             userData = cur.fetchall()
             print(userData)
 
@@ -757,6 +756,7 @@ def viewaccount():
                 profileOBJ["homeAddress"] = profile[2]
                 profileOBJ["creditCard"] = profile[3]
                 profileOBJ["availableMoney"] = profile[4]
+                profileOBJ["purchaseHistory"] = profile[5]
                 if profileOBJ not in profiles:
                     profiles.append(profileOBJ)
             response["userData"] = profiles
@@ -873,7 +873,7 @@ def getorders():
             cur = conn.cursor()
 
             email = request.args.get('email')
-            cur.execute("SELECT * FROM orders JOIN users on users.email = orders.email where orders.email = ?", (email,))
+            cur.execute("SELECT * FROM orders")
             ordersData = cur.fetchall()
             print(ordersData)
 
@@ -881,8 +881,12 @@ def getorders():
             orders = []
             for order in ordersData:
                 orderOBJ = {}
+                orderOBJ["orderId"] = order[0]
                 orderOBJ["customerName"] = order[1]
-                orderOBJ["homeaddress"] = order[9]
+                orderOBJ["totalPrice"] = order[2]
+                orderOBJ["homeaddress"] = order[3]
+                orderOBJ["tracking"] = order[4]
+                orderOBJ["deliverycompany"] = order[5]
                 orders.append(orderOBJ)
             response["ordersData"] = orders
 
