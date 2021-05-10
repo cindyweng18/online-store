@@ -1,0 +1,144 @@
+﻿" name,imageBase64,type,operating_system,main_purpose,architecture,processor,memory,hard_drive,gpu,monitor,keyboard,mouse,price,voting,discussion"
+"Windows Intel Desktop Computer Business 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,1280,6,0"
+"Windows Intel Desktop Computer Business 2,example,desktop,windows,business,Intel,1,79,109,331,427,517,553,1710,8,0"
+"Windows AMD Desktop Computer Business 1,example,desktop,windows,business,Intel,16,33,106,316,412,520,556,1330,6,0"
+"Windows AMD Desktop Computer Business 2,example,desktop,windows,business,Intel,16,81,112,334,430,520,556,1760,8,0"
+"Windows Intel Desktop Computer Scientific 1,example,desktop,windows,business,Intel,4,32,115,319,415,523,559,1400,5,0"
+"Windows Intel Desktop Computer Scientific 2,example,desktop,windows,business,Intel,10,44,127,337,433,523,559,2035,7,0"
+"Windows AMD Desktop Computer Scientific 1,example,desktop,windows,business,Intel,19,34,118,322,418,526,562,1450,4,0"
+"Windows AMD Desktop Computer Scientific 2,example,desktop,windows,business,Intel,25,46,130,340,436,526,562,2085,6,0"
+"Windows Intel Desktop Computer Gaming 1,example,desktop,windows,business,Intel,5,56,121,343,439,547,583,2040,8,0"
+"Windows Intel Desktop Computer Gaming 2,example,desktop,windows,business,Intel,10,56,133,355,511,547,583,3710,10,0"
+"Windows AMD Desktop Computer Gaming 1,example,desktop,windows,business,Intel,20,58,124,346,442,550,586,2090,8,0"
+"Windows AMD Desktop Computer Gaming 2,example,desktop,windows,business,Intel,28,58,136,358,514,550,586,3760,10,0"
+"Windows Intel Laptop Computer Business 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,1280,6,0"
+"Windows Intel Laptop Computer Business 2,example,desktop,windows,business,Intel,1,79,109,331,427,517,553,1710,8,0"
+"Windows AMD Laptop Computer Business 1,example,desktop,windows,business,Intel,16,33,106,316,412,520,556,1330,6,0"
+"Windows AMD Laptop Computer Business 2,example,desktop,windows,business,Intel,16,81,112,334,430,520,556,1760,8,0"
+"Windows Intel Laptop Computer Scientific 1,example,desktop,windows,business,Intel,4,32,115,319,415,523,559,1400,5,0"
+"Windows Intel Laptop Computer Scientific 2,example,desktop,windows,business,Intel,10,44,127,337,433,523,559,2035,7,0"
+"Windows AMD Laptop Computer Scientific 1,example,desktop,windows,business,Intel,19,34,118,322,418,526,562,1450,4,0"
+"Windows AMD Laptop Computer Scientific 2,example,desktop,windows,business,Intel,25,46,130,340,436,526,562,2085,6,0"
+"Windows Intel Laptop Computer Gaming 1,example,desktop,windows,business,Intel,5,56,121,343,439,547,583,2040,8,0"
+"Windows Intel Laptop Computer Gaming 2,example,desktop,windows,business,Intel,10,56,133,355,511,547,583,3710,10,0"
+"Windows AMD Laptop Computer Gaming 1,example,desktop,windows,business,Intel,20,58,124,346,442,550,586,2090,8,0"
+"Windows AMD Laptop Computer Gaming 2,example,desktop,windows,business,Intel,28,58,136,358,514,550,586,3760,10,0"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"Mac Intel Laptop Computer Business 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+"Mac Intel Laptop Computer Business 2,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+
+
+"Mac AMD Laptop Computer Business 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+"Mac AMD Laptop Computer Business 2,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+
+
+"Mac Intel Laptop Computer Scientific 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+"Mac Intel Laptop Computer Scientific 2,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+
+
+"Mac AMD Intel Laptop Computer Scientific 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+"Mac AMD Intel Laptop Computer Scientific 2,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+
+
+"Mac Intel Laptop Computer Gaming 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+"Mac Intel Laptop Computer Gaming 2,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+
+
+"Mac AMD Laptop Computer Gaming 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+"Mac AMD Laptop Computer Gaming 2,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+
+
+"Linux Intel Laptop Computer Business 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+"Linux Intel Laptop Computer Business 2,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+
+
+"Linux AMD Intel Laptop Computer Business 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+"Linux AMD Intel Laptop Computer Business 2,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+
+
+"Linux Intel Laptop Computer Scientific 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+"Linux Intel Laptop Computer Scientific 2,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+
+
+"Linux AMD Laptop Computer Scientific 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+"Linux AMD Laptop Computer Scientific 2,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+
+
+"Linux Intel Laptop Computer Gaming 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+"Linux Intel Laptop Computer Gaming 2,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+
+
+"Linux AMD Laptop Computer Gaming 1,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
+"Linux AMD Laptop Computer Gaming 2,example,desktop,windows,business,Intel,1,31,103,313,409,517,553,0,0,0"
