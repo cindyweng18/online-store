@@ -294,8 +294,9 @@ def builddesktop():
             rowData.append(request.args.get('operating_system'))
             rowData.append(request.args.get('main_purpose'))
             rowData.append(request.args.get('architecture'))
+            rowData.append(request.args.get('type'))
 
-            cur.execute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? ", tuple(rowData))
+            cur.execute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? AND type = ? ", tuple(rowData))
             computerData = cur.fetchall()
             response = {}
             parts = []
@@ -303,9 +304,9 @@ def builddesktop():
                 partsOBJ = {}
                 partsOBJ["name"] = part[1]
                 partsOBJ["imageBase64"] = part[2]
-                partsOBJ["price"] = part[6]
-                partsOBJ["voting"] = part[7]
-                partsOBJ["discussion_id"] = part[8]
+                partsOBJ["price"] = part[7]
+                partsOBJ["voting"] = part[8]
+                partsOBJ["discussion_id"] = part[9]
                 if partsOBJ not in parts:
                     parts.append(partsOBJ)
             response["partsData"] = parts
@@ -335,8 +336,9 @@ def choosecomputer():
             rowData.append(request.args.get('operating_system'))
             rowData.append(request.args.get('main_purpose'))
             rowData.append(request.args.get('architecture'))
+            rowData.append(request.args.get('type'))
 
-            cur.execute("SELECT * FROM computer where operating_system = ? AND main_purpose = ? AND architecture = ? ", tuple(rowData))
+            cur.execute("SELECT * FROM computer where operating_system = ? AND main_purpose = ? AND architecture = ? AND type = ?", tuple(rowData))
             computerData = cur.fetchall()
             response = {}
             computers = []
@@ -361,9 +363,9 @@ def choosecomputer():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
-@app.route('/viewitem', methods = ['OPTIONS','GET'])
+@app.route('/viewpartitem', methods = ['OPTIONS','GET'])
 @cross_origin()
-def viewitem():
+def viewpartitem():
     if request.method == "OPTIONS":
         return build_preflight_response
     elif request.method == "GET":
@@ -397,6 +399,28 @@ def viewitem():
                 reviews.append(reviewOBJ)
             response["partData"]["discussion"] = reviews
 
+            rowData = []
+            rowData.append(request.args.get('operating_system'))
+            rowData.append(request.args.get('main_purpose'))
+            rowData.append(request.args.get('architecture'))
+            rowData.append(request.args.get('name'))
+            rowData.append(request.args.get('type'))
+
+            cur.execute("SELECT * FROM Parts where operating_system = ? AND main_purpose = ? AND architecture = ? AND name = ? AND type = ?", tuple(rowData))
+            partData = cur.fetchall()
+            response = {}
+            parts = []
+            for part in partData:
+                partOBJ = {}
+                partOBJ["name"] = part[1]
+                partOBJ["imageBase64"] = part[2]
+                partOBJ["price"] = part[7]
+                partOBJ["voting"] = part[8]
+                partOBJ["discussion_id"] = part[10]
+                if partOBJ not in parts:
+                    parts.append(partOBJ)
+            response["partData"] = parts
+
             conn.close()
 
             return build_actual_response(jsonify(response))
@@ -408,22 +432,32 @@ def viewitem():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
-@app.route('/viewcomputer', methods = ['OPTIONS','GET'])
+@app.route('/viewcomputeritem', methods = ['OPTIONS','GET'])
 @cross_origin()
-def viewcomputer():
+def viewcomputeritem():
     if request.method == "OPTIONS":
         return build_preflight_response
     elif request.method == "GET":
         try: 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
-
+            
             id = request.args.get('item_id')
 
             cur.execute("SELECT * FROM computer where id = ? ", (id,))
             computerData = cur.fetchone()
-            response = {}
 
+            rowData = []
+            rowData.append(request.args.get('operating_system'))
+            rowData.append(request.args.get('main_purpose'))
+            rowData.append(request.args.get('architecture'))
+            rowData.append(request.args.get('name'))
+            rowData.append(request.args.get('type'))
+
+            cur.execute("SELECT * FROM computer where operating_system = ? AND main_purpose = ? AND architecture = ? AND name = ? AND type = ?", tuple(rowData))
+            computerData = cur.fetchall()
+
+            response = {}
             response["computerData"] = {}
             response["computerData"]["name"] = computerData[1]
             response["computerData"]["imageBase64"] = computerData[2]
@@ -670,7 +704,7 @@ def viewcart():
              cur = conn.cursor()
 
              email = request.args.get('email')
-             cur.execute("SELECT name,imagebase64,price FROM cart WHERE email = ?",(email,))
+             cur.execute("SELECT name,price FROM cart WHERE email = ?",(email,))
              cartData = cur.fetchall()
              cur.execute("SELECT sum(price) from cart where email = ?",(email,))
              priceData = cur.fetchone()
@@ -789,7 +823,8 @@ def checkout():
                     conn.commit()
                 else: 
                     return build_actual_response(jsonify({
-                        "Message" : "You don't have enough money! You can either use another payment method or put more money into your account."
+                        "Message" : "You don't have enough money! You can either use another payment method or put more money into your account.",
+                        "Error": "True"
                     }))
             else:
                 cur.execute("INSERT INTO Orders (customerName,email, totalPrice) VALUES (?,?,?)", tuple(rowData))

@@ -12,6 +12,7 @@ function Checkout() {
 
     // Variables to hold user's info and display on checkout
     const [disable, setDisable] = useState(false);
+    const [error, setError] = useState(false);
     const [firstName, setFirstName] = useState();
     const [lastName, setLastName] = useState();
     const [address, setAddress] = useState();
@@ -20,10 +21,12 @@ function Checkout() {
     const [cart, setCart] = useState([]);
     const [total, setTotal] = useState(0);
     const [message, setMessage] = useState("");
+    const [method, setMethod] = useState("card");
 
-    var email = localStorage.getItem("userEmail");
-    var user = localStorage.getItem("session").replace("-"," ");
+    const email = localStorage.getItem("userEmail");
+    const user = localStorage.getItem("session").replace("-"," ");
 
+    console.log(money, method);
 
     // If user is not signed in, page shows nothing
     var display = "none";
@@ -67,9 +70,25 @@ function Checkout() {
     // Disables Buy button after click
     var btnRef = useRef();
     const onBtnClick = e => {
+        axios
+        .post("/checkout", {
+            email: email,
+            totalPrice: total,
+            payment_method: method,
+        })
+        .then( async (response) => {
+            if (response.data.Error === 'True') {
+                console.log(response.data.Error);
+                setDisable(false);
+                setError(true);
+            } 
+            
+        })
+        .catch(async (e) => setMessage(e.response.data.message));
+
         if(btnRef.current){
           btnRef.current.setAttribute("disabled", "disabled");
-          setDisable(true)
+          setDisable(true);
         }
       }
 
@@ -94,6 +113,20 @@ function Checkout() {
                 </div>
             </Alert>
 
+            <Alert show={error} variant="danger">
+                <Alert.Heading>Oops! You got an error!</Alert.Heading>
+                <p>
+                It looks like you do not have enough money. Go to your Account Management to update your money.
+                </p>
+                <hr />
+                <div className="d-flex justify-content-end">
+                {/* TODO: go to account */}
+                <Button onClick={() => setError(false)} variant="outline-danger">
+                    Go to Account Management
+                </Button>
+                </div>
+            </Alert>
+
 
             <div className="py-5 text-center">
                 <h2>Checkout</h2>
@@ -102,6 +135,7 @@ function Checkout() {
             <div className="row g-5">
                 <div className="col-md-5 col-lg-4 order-md-last">
                     <h4 className="d-flex justify-content-between align-items-center mb-3">
+                    <h1> {message} </h1>
                     <span className="text-primary">Your cart</span>
                     <span className="badge bg-primary rounded-pill">{cart.length}</span>
                     </h4>
@@ -157,11 +191,11 @@ function Checkout() {
                     <h4 className="mb-3">Payment</h4>
                     <div className="my-3">
                         <div className="form-check">
-                        <input id="credit" name="paymentMethod" type="radio" className="form-check-input" defaultChecked required/>
-                        <label className="form-check-label" htmlFor="credit">Credit card (ending in 1234) </label>
+                        <input id="credit" name="paymentMethod" type="radio" className="form-check-input" onChange={() => {setMethod("card")}} defaultChecked required/>
+                        <label className="form-check-label" htmlFor="credit">Credit card (ending in {card}) </label>
                         </div>
                         <div className="form-check">
-                        <input id="debit" name="paymentMethod" type="radio" className="form-check-input" required/>
+                        <input id="money" name="paymentMethod" type="radio" className="form-check-input" onChange={() => {setMethod("money")}} required/>
                         <label className="form-check-label" htmlFor="debit">Money Deposit</label>
                         </div>
                     </div>
