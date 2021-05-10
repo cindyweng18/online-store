@@ -22,6 +22,7 @@ CREATE TABLE ComplaintsFiled (
   complaint TEXT,
   offender TEXT,
   email TEXT,
+  defense TEXT,
   PRIMARY KEY (id)
   );
 
@@ -99,6 +100,7 @@ CREATE TABLE Users (
   creditcard TEXT,
   availablemoney INT DEFAULT 0,
   purchasehistory TEXT,
+  complaints TEXT,
   password TEXT,
   PRIMARY KEY (id)
   );
@@ -122,18 +124,29 @@ CREATE TABLE CreditCard (
 
 CREATE TABLE Orders (
   id INT AUTO_INCREMENT,
+  customerName TEXT,
   email TEXT,
-  productNames TEXT,
+  totalPrice INT,
   tracking_info INT,
   delivery_company TEXT,
   PRIMARY KEY (id)
 );
 
-INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) 
-  VALUES ('Part1','example','macOS','Gaming','Intel',1000,0,0,0);
+CREATE TABLE Bids (
+  id INT AUTO_INCREMENT,
+  deliverycompany TEXT,
+  order_id INT, 
+  bidprice INT,
+  bidstatus BOOLEAN DEFAULT '0',
+  PRIMARY KEY (id)
+  );
 
-INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) 
-  VALUES ('Part2','example2','macOS','Gaming','Intel',1000,0,0,0);
+LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/CPUParts1.csv' 
+INTO TABLE parts 
+FIELDS TERMINATED BY ',' 
+ignore 1 lines
+(name,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion_id,company_id)
+set id = null;
 
 INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion) 
   VALUES ('Part1','example','macOS','Gaming','Intel',1000,0,0);
