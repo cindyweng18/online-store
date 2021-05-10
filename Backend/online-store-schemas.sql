@@ -22,6 +22,7 @@ CREATE TABLE ComplaintsFiled (
   complaint TEXT,
   offender TEXT,
   email TEXT,
+  defense TEXT,
   PRIMARY KEY (id)
   );
 
@@ -100,6 +101,7 @@ CREATE TABLE Users (
   creditcard TEXT,
   availablemoney INT DEFAULT 0,
   purchasehistory TEXT,
+  complaints TEXT,
   password TEXT,
   PRIMARY KEY (id)
   );
@@ -123,12 +125,22 @@ CREATE TABLE CreditCard (
 
 CREATE TABLE Orders (
   id INT AUTO_INCREMENT,
+  customerName TEXT,
   email TEXT,
-  total_price INT,
+  totalPrice INT,
   tracking_info INT,
   delivery_company TEXT,
   PRIMARY KEY (id)
 );
+
+CREATE TABLE Bids (
+  id INT AUTO_INCREMENT,
+  deliverycompany TEXT,
+  order_id INT, 
+  bidprice INT,
+  bidstatus BOOLEAN DEFAULT '0',
+  PRIMARY KEY (id)
+  );
 
 INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, type, price, voting, discussion_id, company_id) 
   VALUES ('Intel i5','example','Windows','Gaming','Intel', 'CPU', 1000,8,0,0);

@@ -47,7 +47,7 @@ def createacccount():
             rowData.append(jsonData["email"])
             rowData.append(jsonData["password"])
             rowData.append(jsonData["homeAddress"])
-            #rowData.append(jsonData["purchaseHistory"])
+            rowData.append(json.dumps([]))
             rowData.append(json.dumps([]))
 
             conn = mariadb.connect(**config)
@@ -61,7 +61,7 @@ def createacccount():
                     "Message" : "There already exists a user with this email!"
                 })), 400
             else:
-                cur.execute("INSERT INTO users (fullName, email, password, homeAddress, purchaseHistory) VALUES (?,?,?,?,?)", tuple(rowData))
+                cur.execute("INSERT INTO users (fullName, email, password, homeAddress, purchaseHistory,complaints) VALUES (?,?,?,?,?,?)", tuple(rowData))
                 cur.execute("INSERT INTO CreditCard (email) VALUES (?)", (jsonData["email"],))
                 conn.commit()
                 conn.close()
@@ -93,14 +93,14 @@ def userlogin():
             cur.execute("SELECT * FROM users WHERE email = ? AND password = ? ",tuple(rowData))
             userData = cur.fetchone()
 
-            # cur.execute("SELECT following FROM Following WHERE username = ?",(jsonData["username"],))
-            # purchaseData = cur.fetchall()
-
             cur.execute("SELECT * FROM users WHERE email = ?",(jsonData["email"],))
             peopleData = cur.fetchone()
 
-            # cur.execute("SELECT * FROM complaints where complainer = ?", (jsonData["email"],))
-            # complaintsData = cur.fetchall()
+            cur.execute("SELECT * FROM complaintsFiled WHERE email = ?", (jsonData["email"],))
+            complaintsMade = cur.fetchall()
+
+            cur.execute("SELECT * FROM complaintsFiled WHERE offender = ?", (peopleData[1],))
+            complaintsReceived = cur.fetchall()
 
             if userData is not None:
                 response = {}
@@ -111,14 +111,24 @@ def userlogin():
                 response["loginData"]["homeAddress"] = peopleData[3]
                 response["loginData"]["availableMoney"] = peopleData[5]
                 response["loginData"]["purchaseHistory"] = peopleData[6]
-                # purchaseList = []
-                # for purchase in purchaseData:
-                #     purchaseList.append(purchase[0])
-                # response["loginData"]["purchaseHistory"] = purchaseList
-                # complaintsList = []
-                # for complaint in complaintsData:
-                #     complaintsList.append(complaint[1])
-                # response["loginData"]["complaintsList"] = complaintsList
+                #response["loginData"]["complaints"] = peopleData[7]
+
+                complaintsList = []
+                for complaint in complaintsMade:
+                    complaintOBJ = {}
+                    complaintOBJ["complaint"] = complaint [2]
+                    complaintOBJ["offender"] = complaint [3]
+                    complaintsList.append(complaintOBJ)
+                response["loginData"]["complaintsMade"] = complaintsList
+
+                complaintList = []
+                for complaint in complaintsReceived:
+                    complaintOBJ = {}
+                    complaintOBJ["complainer"] = complaint[1]
+                    complaintOBJ["complaint"] = complaint [2]
+                    complaintList.append(complaintOBJ)
+                response["loginData"]["complaintsReceived"] = complaintList
+
                 conn.close()
                 return build_actual_response(jsonify(response)), 200
             else:
@@ -363,6 +373,32 @@ def viewpartitem():
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
+            id = request.args.get('item_id')
+
+            cur.execute("SELECT * FROM Parts where id = ? ", (id,))
+            partData = cur.fetchone()
+            print(partData)
+
+            response = {}
+            response["partData"] = {}
+            response["partData"]["name"] = partData[1]
+            response["partData"]["imageBase64"] = partData[2]
+            response["partData"]["price"] = partData[6]
+            response["partData"]["voting"] = partData[7]
+            response["partData"]["discussion_id"] = partData[8]
+            
+            cur.execute("SELECT * from reviews where item_id = ?", (id,))
+            discussionData = cur.fetchall()
+            print(discussionData)
+            reviews = []
+            for review in discussionData:
+                reviewOBJ = {}
+                reviewOBJ["commenter"] = review [2]
+                reviewOBJ["comment"] = review [3]
+                reviewOBJ["vote"] = review [4]
+                reviews.append(reviewOBJ)
+            response["partData"]["discussion"] = reviews
+
             rowData = []
             rowData.append(request.args.get('operating_system'))
             rowData.append(request.args.get('main_purpose'))
@@ -384,6 +420,7 @@ def viewpartitem():
                 if partOBJ not in parts:
                     parts.append(partOBJ)
             response["partData"] = parts
+
             conn.close()
 
             return build_actual_response(jsonify(response))
@@ -404,6 +441,11 @@ def viewcomputeritem():
         try: 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
+            
+            id = request.args.get('item_id')
+
+            cur.execute("SELECT * FROM computer where id = ? ", (id,))
+            computerData = cur.fetchone()
 
             rowData = []
             rowData.append(request.args.get('operating_system'))
@@ -414,18 +456,26 @@ def viewcomputeritem():
 
             cur.execute("SELECT * FROM computer where operating_system = ? AND main_purpose = ? AND architecture = ? AND name = ? AND type = ?", tuple(rowData))
             computerData = cur.fetchall()
+
             response = {}
-            computers = []
-            for computer in computerData:
-                computerOBJ = {}
-                computerOBJ["name"] = computer[1]
-                computerOBJ["imageBase64"] = computer[2]
-                computerOBJ["price"] = computer[7]
-                computerOBJ["voting"] = computer[9]
-                computerOBJ["discussion_id"] = computer[10]
-                if computerOBJ not in computers:
-                    computers.append(computerOBJ)
-            response["computerData"] = computers
+            response["computerData"] = {}
+            response["computerData"]["name"] = computerData[1]
+            response["computerData"]["imageBase64"] = computerData[2]
+            response["computerData"]["price"] = computerData[7]
+            response["computerData"]["voting"] = computerData[9]
+            response["computerData"]["discussion_id"] = computerData[10]
+
+            cur.execute("SELECT * from reviews where item_id = ?", (id,))
+            discussionData = cur.fetchall()
+            reviews = []
+            for review in discussionData:
+                reviewOBJ = {}
+                reviewOBJ["commenter"] = review [2]
+                reviewOBJ["comment"] = review [3]
+                reviewOBJ["vote"] = review [4]
+                reviews.append(reviewOBJ)
+            response["computerData"]["discussion"] = reviews
+
             conn.close()
 
             return build_actual_response(jsonify(response))
@@ -669,9 +719,7 @@ def viewcart():
                  productOBJ["name"] = part[0]
                  productOBJ["imageBase64"] = part[1]
                  productOBJ["price"] = part[2]
-                 #productOBJ["totalPrice"] = sum(part[2])
-                 if productOBJ not in products:
-                     products.append(productOBJ)
+                 products.append(productOBJ)
              response["cartData"]["allProducts"] = products
              response["cartData"]["totalPrice"] = 0 if priceData[0] is None else float(priceData[0])
 
@@ -755,10 +803,8 @@ def checkout():
 
                     cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
                     product = cur.fetchone()
-                    print(product)
                     product = product[0]
                     result = json.loads(product)
-                    print(result)
 
                     cur.execute("SELECT max(id) from orders")
                     id = cur.fetchall()
@@ -772,6 +818,9 @@ def checkout():
                     for product in result:
                         cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
                         conn.commit()
+                    
+                    cur.execute("DELETE FROM cart where email = ?", (jsonData["email"],))
+                    conn.commit()
                 else: 
                     return build_actual_response(jsonify({
                         "Message" : "You don't have enough money! You can either use another payment method or put more money into your account.",
@@ -797,6 +846,9 @@ def checkout():
                 for product in result:
                     cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
                     conn.commit()
+                
+                cur.execute("DELETE FROM cart where email = ?", (jsonData["email"],))
+                conn.commit()
                 
             conn.close()
             
@@ -831,8 +883,7 @@ def getorders():
                 orderOBJ = {}
                 orderOBJ["customerName"] = order[1]
                 orderOBJ["homeaddress"] = order[9]
-                if orderOBJ not in orders:
-                    orders.append(orderOBJ)
+                orders.append(orderOBJ)
             response["ordersData"] = orders
 
             conn.close()
@@ -843,6 +894,176 @@ def getorders():
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
+
+@app.route('/postcomplaint', methods = ['OPTIONS', 'POST'])
+@cross_origin()
+def postcomplaint():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try:
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["complainer"]) 
+            rowData.append(jsonData["complaint"])  
+            rowData.append(jsonData["offender"]) 
+            rowData.append(jsonData["email"]) 
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("INSERT INTO ComplaintsFiled (complainer,complaint,offender) VALUES (?,?,?)", tuple(rowData))
+            conn.commit()
+
+            conn.close()
+
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Can not post complaint!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/postdiscussion', methods = ['OPTIONS', 'POST'])
+@cross_origin()
+def profilecomment():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try:
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["item_id"]) 
+            rowData.append(jsonData["commenter"])  
+            rowData.append(jsonData["comment"]) 
+            rowData.append(jsonData["vote"])
+            
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("INSERT INTO Reviews (item_id,commenter,comment,vote) VALUES (?,?,?,?)", tuple(rowData))
+            conn.commit()
+            conn.close()
+
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Can't post the comment!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route ('/getallcomplaints', methods = ['OPTIONS', 'GET'])
+def gethashtags():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'GET':       
+        try:
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM ComplaintsFiled")
+            complaints = cur.fetchall()
+
+            if complaints is not None:
+                complaints = list(complaints)
+                conn.close()
+
+                complaint = []
+                for item in complaints:
+                    complains = {
+                        'id' : item [0],
+                        'complainer' : item [1],
+                        'complaint' : item [2],
+                        'offender' : item [3],
+                        'email' : item[4]
+                    }
+                    complaint.append(complains)
+
+                body = {
+                    'getAllComplaints' : complaint
+                }
+            else:
+                body = {
+                    'getAllComplaints': []
+                }
+            return build_actual_response(jsonify(body)), 200
+
+        except Exception as e:
+            body = {
+                'Error': "Can't get all complaints!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/postbid', methods = ['OPTIONS', 'POST'])
+@cross_origin()
+def postbid():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try: 
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["deliverycompany"])
+            rowData.append(jsonData["order_id"])
+            rowData.append(jsonData["bidprice"])
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("INSERT INTO Bids (deliverycompany,order_id,bidprice) VALUES (?,?,?)", tuple(rowData))
+            conn.commit()
+            conn.close()
+            
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Can't place bid!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/writedefense', methods = ['OPTIONS', 'POST'])
+@cross_origin()
+def writedefense():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try:
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["defense"])
+            rowData.append(jsonData["id"])
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("UPDATE complaintsfiled SET defense = ? WHERE id = ? ", tuple(rowData))
+            conn.commit()
+
+            conn.close()
+
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Can't write defense!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
 
 if __name__ == '__main__':
     app.run()
