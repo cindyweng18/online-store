@@ -3,20 +3,33 @@ import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { FormControl } from "react-bootstrap";
+import { useState, useEffect } from 'react';
+import axios from "axios";
 
 function Delivery(props) {
     const { params } = props.match;
     const history = useHistory();
+    const [data, setData] = useState();
 
     const handleLogout = () => {
         localStorage.clear();
         history.push('/employeelogin');
-      }
+    }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const getItem = await axios.get(`/getorders`);
+            console.log(getItem.data);
+            setData(getItem.data['ordersData']);
+        }
+        fetchData();
+    }, []);
+
 
     return (
         <>
         <div className="container-fluid">
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <div className="d-grid gap-2 d-md-flex justify-content-md-end">
             <button className="btn btn-danger me-md-2" type="button" variant="danger" onClick={handleLogout}>Logout</button>
         </div>
         <h1> Delivery - {params.name} </h1>
@@ -25,42 +38,37 @@ function Delivery(props) {
             <thead>
                 <tr>
                 <th>Order #</th>
-                <th>Customer Name</th>
+                <th>Customer Email</th>
                 <th>Customer Home Address</th>
                 <th>Customer Order's Total Price</th>
                 <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                <td>1</td>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-                <td>
-                <InputGroup className="mb-3">
-                <InputGroup.Prepend>
-                    <InputGroup.Text>$</InputGroup.Text>
-                </InputGroup.Prepend>
-                    <FormControl
-                    placeholder="Bid Amount"
-                    aria-label="Bid Amount"
-                    aria-describedby="basic-addon2"
-                    />
-                    <InputGroup.Append>
-                    <Button variant="outline-primary">Bid</Button>
-                    </InputGroup.Append>
-                </InputGroup>
-                </td>
-                </tr>
 
+                {data.map(item => 
                 <tr>
-                <td>2</td>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@fat</td>
-                <td>@mdo</td>
+                    <td> {item.id} </td>
+                    <td> {item.email} </td>
+                    <td> {item.homeaddress} </td>
+                    <td> {item.totalprice} </td>
+                    <td>
+                    <InputGroup className="mb-3">
+                    <InputGroup.Prepend>
+                        <InputGroup.Text>$</InputGroup.Text>
+                    </InputGroup.Prepend>
+                        <FormControl
+                        placeholder="Bid Amount"
+                        aria-label="Bid Amount"
+                        aria-describedby="basic-addon2"
+                        />
+                        <InputGroup.Append>
+                        <Button variant="outline-primary">Bid</Button>
+                        </InputGroup.Append>
+                    </InputGroup>
+                    </td>
                 </tr>
+                    )}
 
             </tbody>
         </Table>

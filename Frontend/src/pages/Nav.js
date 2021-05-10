@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 const Nav = () => {
   // Change parts of Nav when a user is signed in or not
   const history = useHistory();
-  var user = localStorage.getItem("session");
+  const user = localStorage.getItem("session");
   var text = "Sign In";
   var link = "/login";
   var display = "none";
@@ -30,16 +30,16 @@ const Nav = () => {
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <a className="nav-link active" aria-current="page" href="/desktops">Build Desktop</a>
+                <a className="nav-link active" aria-current="page" href="/desktop">Build Desktop</a>
               </li>
               <li className="nav-item">
-                <a className="nav-link active" aria-current="page" href="/laptops">Build Laptop</a>
+                <a className="nav-link active" aria-current="page" href="/laptop">Build Laptop</a>
               </li>
               <li className="nav-item">
                 <a className="nav-link active" aria-current="page" href="/parts">Computer Parts</a>
               </li>
               <li className="nav-item">
-                <a className="nav-link active" aria-current="page" href="/discussion">Discussion Forum</a>
+                <a className="nav-link active" aria-current="page" href="/discussion">Post Complain/Review</a>
               </li>
             </ul>
             <span className="navbar-text">

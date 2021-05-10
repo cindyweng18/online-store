@@ -16,8 +16,8 @@ function Item(props) {
     const [message, setMessage] = useState("");
     const [item, setItem] = useState({});
     const {register, handleSubmit} = useForm();
-    var user = localStorage.getItem("session");
-    var email = localStorage.getItem("userEmail");
+    const user = localStorage.getItem("session");
+    const email = localStorage.getItem("userEmail");
 
     // Don't display 'Add to Cart' button if user not logged in
     var display = "none";
@@ -32,7 +32,8 @@ function Item(props) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const getItem = await axios.get(`/viewitem?operating_system=${params.os}&main_purpose=${params.purpose}&architecture=${params.arch}&name=${params.name.split("-").join(" ")}`);
+            const getItem = await axios.get(`/viewcomputeritem?operating_system=${params.os}&main_purpose=${params.purpose}&architecture=${params.arch}&name=${params.name.split("-").join(" ")}&type=${params.computer}`);
+            //console.log(getItem.data);
             setItem(getItem.data['computerData'][0]);
         }
         fetchData();

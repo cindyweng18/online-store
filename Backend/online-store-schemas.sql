@@ -21,23 +21,41 @@ CREATE TABLE ComplaintsFiled (
   complaint TEXT,
   offender TEXT,
   email TEXT,
+  defense TEXT,
   PRIMARY KEY (id)
   );
+
 
 CREATE TABLE Computer (
   id INT AUTO_INCREMENT,
   name TEXT,
   imageBase64 LONGTEXT,
-  parts TEXT,
+  type TEXT,
   operating_system TEXT,
   main_purpose TEXT,
   architecture TEXT,
+  processor INT,
+  memory INT,
+  hard_drive INT,
+  gpu INT,
+  monitor INT,
+  keyboard INT,
+  mouse INT,
   price INT,
-  type TEXT,
   voting INT,
   discussion INT,
   PRIMARY KEY (id)
   );
+
+/*
+load data local infile '\ComputerSystems1.csv'
+into table computer
+fields terminated by ',' LINES STARTING BY '"'
+ignore 1 lines
+(name,imageBase64,type,operating_system,main_purpose,architecture,processor,memory,hard_drive,gpu,
+monitor,keyboard,mouse,price,voting,discussion)
+set id = null;
+*/
 
 CREATE TABLE ComputerPartsCompany (
   id INT AUTO_INCREMENT,
@@ -67,6 +85,7 @@ CREATE TABLE Parts (
   operating_system TEXT,
   main_purpose TEXT,
   architecture TEXT,
+  type TEXT,
   price INT,
   voting INT,
   discussion_id INT,
@@ -98,6 +117,7 @@ CREATE TABLE Users (
   creditcard TEXT,
   availablemoney INT DEFAULT 0,
   purchasehistory TEXT,
+  complaints TEXT,
   password TEXT,
   PRIMARY KEY (id)
   );
@@ -124,14 +144,18 @@ INSERT INTO ComputerPartsCompany (name) VALUES ('Apple');
 /*
 
 ***Load CSV of parts and systems***
-LOAD DATA LOCAL INFILE '\CPUParts1.csv' INTO TABLE parts(name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id) FIELDS TERMINATED BY ',' Lines terminated by '\n' IGNORE 1 LINES;
-
-
-LOAD DATA INFILE 'C:\Users\Krx421\Desktop\grove_classes\CPUParts1.csv' INTO TABLE parts FIELDS TERMINATED BY ',' Lines terminated by '\n' IGNORE 1 LINES;
-*/
-
 load data local infile '\CPUParts2.csv'
 into table parts
 fields terminated by ',' LINES STARTING BY '"'
 ignore 1 lines
 (id,name, part_type, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion_id, company_id);
+
+*/
+
+
+
+
+
+
+
+
