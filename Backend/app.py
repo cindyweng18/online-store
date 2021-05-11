@@ -1071,7 +1071,7 @@ def gethashtags():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
-@app.route('/postbid', methods = ['OPTIONS', 'POST'])
+@app.route('/postbid', methods = ['OPTIONS', 'POST']) #for delivery company
 @cross_origin()
 def postbid():
     if request.method == 'OPTIONS':
