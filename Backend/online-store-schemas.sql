@@ -4,12 +4,13 @@ USE OnlineStore;
 
 CREATE TABLE AvoidList (
   id INT AUTO_INCREMENT,
-  email_address TEXT,
+  email TEXT,
   PRIMARY KEY (id)
   );
 
 CREATE TABLE Clerk (
   id INT AUTO_INCREMENT,
+  email TEXT,
   name TEXT,
   password TEXT,
   complaintsreceived TEXT,
@@ -58,7 +59,8 @@ CREATE TABLE DeliveryCompany (
 
 CREATE TABLE Manager (
   id INT AUTO_INCREMENT,
-  name TEXT,
+  email TEXT,
+  name TEXT, 
   password TEXT,
   PRIMARY KEY (id)
   );
@@ -100,8 +102,6 @@ CREATE TABLE Users (
   homeaddress TEXT,
   creditcard TEXT,
   availablemoney INT DEFAULT 0,
-  purchasehistory TEXT,
-  complaints TEXT,
   password TEXT,
   PRIMARY KEY (id)
   );
@@ -128,7 +128,8 @@ CREATE TABLE Orders (
   customerName TEXT,
   email TEXT,
   totalPrice INT,
-  tracking_info INT,
+  itemList TEXT,
+  tracking_info TEXT,
   delivery_company TEXT,
   PRIMARY KEY (id)
 );
@@ -141,6 +142,25 @@ CREATE TABLE Bids (
   bidstatus BOOLEAN DEFAULT '0',
   PRIMARY KEY (id)
   );
+
+CREATE TABLE warnings(
+  id INT AUTO_INCREMENT,
+  email TEXT,
+  reasoning TEXT,
+  decision BOOLEAN DEFAULT '0',
+  PRIMARY KEY (id)
+);
+
+LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/CPUParts2.csv' 
+INTO TABLE parts 
+FIELDS TERMINATED BY ',' 
+ignore 1 lines
+(name,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion_id,company_id)
+set id = null;
+
+LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/TabooList.txt' 
+INTO TABLE TabooList 
+(word);
 
 INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, type, price, voting, discussion_id, company_id) 
   VALUES ('Intel i5','example','Windows','Gaming','Intel', 'CPU', 1000,8,0,0);
@@ -169,9 +189,9 @@ INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, archite
 INSERT INTO DeliveryCompany (name,password) VALUES ('Fedex','company1');
 INSERT INTO DeliveryCompany (name,password) VALUES ('UPS','company2');
 
-INSERT INTO Manager (name,password) VALUES ('Sandra Patton','manager1');
+INSERT INTO Manager (email,password) VALUES ('sandra@gmail.com','manager1');
 
-INSERT INTO Clerk (name,password) VALUES ('Jack Hernandez','clerk1');
+INSERT INTO Clerk (email,password, name) VALUES ('jack@gmail.com','clerk1','Jack Hernandez');
 
 INSERT INTO ComputerPartsCompany (name) VALUES ('Apple');
 
