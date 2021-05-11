@@ -46,6 +46,7 @@ CREATE TABLE ComputerPartsCompany (
   id INT AUTO_INCREMENT,
   name TEXT,
   complaintsreceived TEXT,
+  email TEXT,
   PRIMARY KEY (id)
   );
 
@@ -54,6 +55,7 @@ CREATE TABLE DeliveryCompany (
   name TEXT,
   password TEXT,
   complaintsreceived TEXT,
+  email TEXT,
   PRIMARY KEY (id)
   );
 

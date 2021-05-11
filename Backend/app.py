@@ -454,17 +454,18 @@ def viewpartitem():
             partData = cur.fetchone()
             print(partData)
 
+            cur.execute("SELECT avg(vote) from reviews where item_id = ?", (id,))
+            voteData = cur.fetchone()
+
             response = {}
             response["partData"] = {}
-            response["partData"]["name"] = partData[1]
-            response["partData"]["imageBase64"] = partData[2]
-            response["partData"]["price"] = partData[6]
-            response["partData"]["voting"] = partData[7]
-            response["partData"]["discussion_id"] = partData[8]
+            response["partData"]["name"] = partData[2]
+            response["partData"]["imageBase64"] = partData[4]
+            response["partData"]["price"] = partData[9]
+            response["partData"]["voting"] = float(voteData[0])
             
             cur.execute("SELECT * from reviews where item_id = ?", (id,))
             discussionData = cur.fetchall()
-            print(discussionData)
             reviews = []
             for review in discussionData:
                 reviewOBJ = {}
@@ -474,35 +475,13 @@ def viewpartitem():
                 reviews.append(reviewOBJ)
             response["partData"]["discussion"] = reviews
 
-            rowData = []
-            rowData.append(request.args.get('operating_system'))
-            rowData.append(request.args.get('main_purpose'))
-            rowData.append(request.args.get('architecture'))
-            rowData.append(request.args.get('name'))
-            rowData.append(request.args.get('type'))
-
-            cur.execute("SELECT * FROM Parts where operating_system = ? AND main_purpose = ? AND architecture = ? AND name = ? AND type = ?", tuple(rowData))
-            partData = cur.fetchall()
-            response = {}
-            parts = []
-            for part in partData:
-                partOBJ = {}
-                partOBJ["name"] = part[1]
-                partOBJ["imageBase64"] = part[2]
-                partOBJ["price"] = part[7]
-                partOBJ["voting"] = part[8]
-                partOBJ["discussion_id"] = part[10]
-                if partOBJ not in parts:
-                    parts.append(partOBJ)
-            response["partData"] = parts
-
             conn.close()
 
             return build_actual_response(jsonify(response))
 
         except Exception as e:
             body = {
-                'Error': "This combination does not exist, sorry!",
+                'Error': "This item does not exist, sorry!",
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
@@ -1231,6 +1210,9 @@ def choosebid():
                 tracking = (''.join(choice(ascii_uppercase + digits) for i in range (15)))
                 cur.execute("UPDATE orders set tracking_info = ? where id = ?", (tracking, jsonData["orderId"],))
                 conn.commit()
+
+                cur.execute("DELETE * FROM bids where order_id = ?", (jsonData["orderId"]))
+                conn.commit()
             else:
                 cur.execute("UPDATE Bids set bidstatus = '1' where id = ?", (jsonData["bidId"],))
                 conn.commit()
@@ -1243,6 +1225,9 @@ def choosebid():
 
                 tracking = (''.join(choice(ascii_uppercase + digits) for i in range (15)))
                 cur.execute("UPDATE orders set tracking_info = ? where id = ?", (tracking, jsonData["orderId"],))
+                conn.commit()
+
+                cur.execute("DELETE * FROM bids where order_id = ?", (jsonData["orderId"]))
                 conn.commit()
             
             conn.close()
