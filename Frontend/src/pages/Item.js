@@ -33,11 +33,11 @@ function Item(props) {
     useEffect(() => {
         const fetchData = async () => {
             const getItem = await axios.get(`/viewcomputeritem?operating_system=${params.os}&main_purpose=${params.purpose}&architecture=${params.arch}&name=${params.name.split("-").join(" ")}&type=${params.computer}`);
-            //console.log(getItem.data);
-            setItem(getItem.data['computerData'][0]);
+            setItem(getItem.data['computerData']);
         }
         fetchData();
     }, [params]);
+
 
     function addToCart(event) {
         event.preventDefault();

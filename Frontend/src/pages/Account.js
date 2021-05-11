@@ -19,6 +19,8 @@ function Account(props) {
     const [address, setAddress] = useState();
     const [card, setCard] = useState();
     const [money, setMoney] = useState();
+    const [complaintsMade, setComplaintsMade] = useState([]);
+    const [complaintsReceived, setComplaintsReceived] = useState([]);
     const [message, setMessage] = useState("");
 
     // New Card Info Input
@@ -38,6 +40,8 @@ function Account(props) {
             console.log(getUser.data['userData'][0]);
             setAddress(getUser.data['userData'][0]['homeAddress']);
             setMoney(getUser.data['userData'][0]['availableMoney']);
+            setComplaintsMade(getUser.data['userData'][0]['complaintsMade']);
+            setComplaintsReceived(getUser.data['userData'][0]['complaintsReceived']);
             if (getUser.data['userData'][0]['availableMoney'] === null) {
                 setCard("");
             } else {
@@ -80,8 +84,6 @@ function Account(props) {
     };
 
     function editCreditCard(data) {
-        //{expiryDate: "12 / 23", cvc: "999", cardNumber: "4242 4242 4242 4242"}
-        // console.log(data['expiryDate'])
         axios.post('/editcreditcard', {
             name: name,
             number: data['cardNumber'],
@@ -129,6 +131,7 @@ function Account(props) {
                         <td>
                         <InputGroup className="mb-3">
                             <FormControl
+                            autofocus
                             placeholder="New Name"
                             aria-label="New Name"
                             aria-describedby="basic-addon2"
@@ -241,7 +244,7 @@ function Account(props) {
                                         </Field>
                                         </PaymentInputsWrapper>
                                     </div>
-                                    <Button marginTop="major-2" type="submit">
+                                    <Button margintop="major-2" type="submit">
                                         Save
                                     </Button>
                                     </form>
@@ -330,28 +333,26 @@ function Account(props) {
                     <Table striped bordered hover>
                         <thead>
                             <tr>
-                            <th>Complaint Id</th>
                             <th>Complainer</th>
-                            <th>Complainee</th>
-                            <th>Title</th>
+                            <th>Offender</th>
                             <th>Description</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                            <td>1</td>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                            </tr>
-                            <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                            <td>@mdo</td>
-                            </tr>
+                            {complaintsMade.map(item => 
+                                <tr key={item}>
+                                    <td> {name.replace("-"," ")} </td>
+                                    <td> {item['offender']} </td>
+                                    <td> {item['complaint']} </td>
+                                </tr>
+                            )}
+                            {complaintsReceived.map(item =>
+                                <tr key={item}>
+                                    <td> {item['complainer']} </td>
+                                    <td> {name.replace("-"," ")} </td>
+                                    <td> {item['complaint']} </td>
+                                </tr>
+                                )}
                         </tbody>
                     </Table>
                 </div>
