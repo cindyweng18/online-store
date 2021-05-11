@@ -6,6 +6,8 @@ from flask import jsonify, request
 from flask_cors import CORS, cross_origin
 from config import *
 from datetime import date
+from random import choice
+from string import ascii_uppercase, digits
 
 app = flask.Flask(__name__)
 CORS(app, support_credentials=False)
@@ -47,8 +49,8 @@ def createacccount():
             rowData.append(jsonData["email"])
             rowData.append(jsonData["password"])
             rowData.append(jsonData["homeAddress"])
-            rowData.append(json.dumps([]))
-            rowData.append(json.dumps([]))
+            #rowData.append(json.dumps([]))
+            #rowData.append(json.dumps([]))
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
@@ -61,7 +63,7 @@ def createacccount():
                     "Message" : "There already exists a user with this email!"
                 })), 400
             else:
-                cur.execute("INSERT INTO users (fullName, email, password, homeAddress, purchaseHistory,complaints) VALUES (?,?,?,?,?,?)", tuple(rowData))
+                cur.execute("INSERT INTO users (fullName, email, password, homeAddress) VALUES (?,?,?,?)", tuple(rowData))
                 cur.execute("INSERT INTO CreditCard (email) VALUES (?)", (jsonData["email"],))
                 conn.commit()
                 conn.close()
@@ -90,6 +92,15 @@ def userlogin():
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
+
+            cur.execute("SELECT * FROM avoidlist where email = ?", (jsonData["email"],))
+            avoidData = cur.fetchone()
+
+            if avoidData is not None:
+                return build_actual_response(jsonify({
+                "Error" : "Your account has been banned from any further use!"
+            })) , 200
+
             cur.execute("SELECT * FROM users WHERE email = ? AND password = ? ",tuple(rowData))
             userData = cur.fetchone()
 
@@ -102,6 +113,9 @@ def userlogin():
             cur.execute("SELECT * FROM complaintsFiled WHERE offender = ?", (peopleData[1],))
             complaintsReceived = cur.fetchall()
 
+            cur.execute("SELECT * FROM orders WHERE email = ?", (jsonData["email"],))
+            purchaseData = cur.fetchall()
+
             if userData is not None:
                 response = {}
                 response["loginData"] = {}
@@ -110,8 +124,17 @@ def userlogin():
                 response["loginData"]["fullName"] = peopleData[1]
                 response["loginData"]["homeAddress"] = peopleData[3]
                 response["loginData"]["availableMoney"] = peopleData[5]
-                response["loginData"]["purchaseHistory"] = peopleData[6]
-                #response["loginData"]["complaints"] = peopleData[7]
+
+                purchaseList = []
+                for purchase in purchaseData:
+                    purchaseOBJ = {}
+                    purchaseOBJ["id"] = purchase [0]
+                    purchaseOBJ["totalPrice"] = purchase [3]
+                    purchaseOBJ["tracking_info"] = purchase [5]
+                    purchaseOBJ["delivery_company"] = purchase [6]
+                    purchaseOBJ["items"] = purchase[4]
+                    purchaseList.append(purchaseOBJ)
+                response["loginData"]["purchaseHistory"] = purchaseList
 
                 complaintsList = []
                 for complaint in complaintsMade:
@@ -153,15 +176,16 @@ def clerklogin():
             jsonData = request.json
 
             rowData = [] # Data to be uploaded to database
-            rowData.append(jsonData["name"])
+            rowData.append(jsonData["email"])
             rowData.append(jsonData["password"])
+            rowData.append(jsonData["name"])
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
-            cur.execute("SELECT * FROM clerk WHERE name = ? AND password = ? ",tuple(rowData))
+            cur.execute("SELECT * FROM clerk WHERE email = ? AND password = ? ",tuple(rowData))
             userData = cur.fetchone()
 
-            cur.execute("SELECT * FROM clerk WHERE name = ?",(jsonData["name"],))
+            cur.execute("SELECT * FROM clerk WHERE email = ?",(jsonData["email"],))
             peopleData = cur.fetchone()
 
             cur.execute("SELECT * FROM ComplaintsFiled WHERE offender = ?", (jsonData["name"],))
@@ -172,11 +196,20 @@ def clerklogin():
                 response["loginData"] = {}
                 response["verified"] = {}
                 response["verified"] = True
-                response["loginData"]["name"] = peopleData[1]
+                response["loginData"]["name"] = peopleData[2]
+
                 complaintsList = []
                 for complaint in complaintsData:
-                    complaintsList.append(complaint[1])
-                response["loginData"]["complaintsList"] = complaintsList
+                    complaintOBJ = {}
+                    complaintOBJ["complainer"] = complaint[1]
+                    complaintOBJ["complaint"] = complaint [2]
+                    complaintsList.append(complaintOBJ)
+                response["loginData"]["complaintsReceived"] = complaintsList
+
+                # for complaint in complaintsData:
+                #     complaintsList.append(complaint[1])
+                # response["loginData"]["complaintsList"] = complaintsList
+
                 conn.close()
                 return build_actual_response(jsonify(response)), 200
             else:
@@ -201,15 +234,15 @@ def managerlogin():
             jsonData = request.json
 
             rowData = [] # Data to be uploaded to database
-            rowData.append(jsonData["name"])
+            rowData.append(jsonData["email"])
             rowData.append(jsonData["password"])
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
-            cur.execute("SELECT * FROM manager WHERE name = ? AND password = ? ",tuple(rowData))
+            cur.execute("SELECT * FROM manager WHERE email = ? AND password = ? ",tuple(rowData))
             userData = cur.fetchone()
 
-            cur.execute("SELECT * FROM manager WHERE name = ?",(jsonData["name"],))
+            cur.execute("SELECT * FROM manager WHERE email = ?",(jsonData["email"],))
             peopleData = cur.fetchone()
 
             if userData is not None:
@@ -748,20 +781,19 @@ def viewcart():
              cur = conn.cursor()
 
              email = request.args.get('email')
-             cur.execute("SELECT name,price FROM cart WHERE email = ?",(email,))
+             cur.execute("SELECT * FROM cart WHERE email = ?",(email,))
              cartData = cur.fetchall()
+
              cur.execute("SELECT sum(price) from cart where email = ?",(email,))
              priceData = cur.fetchone()
-             print(cartData)
-             print(priceData)
 
              response = {}
              response["cartData"] = {}
              products = []
              for part in cartData:
                  productOBJ = {}
-                 productOBJ["name"] = part[0]
-                 productOBJ["price"] = part[1]
+                 productOBJ["name"] = part[1]
+                 productOBJ["price"] = part[3]
                  products.append(productOBJ)
              response["cartData"]["allProducts"] = products
              response["cartData"]["totalPrice"] = 0 if priceData[0] is None else float(priceData[0])
@@ -848,6 +880,7 @@ def checkout():
             rowData.append(jsonData["customerName"])
             rowData.append(jsonData["email"])
             rowData.append(jsonData["totalPrice"])
+            rowData.append(jsonData["itemList"])
             rowData.append(jsonData["homeAddress"])
             rowData.append(jsonData["paymentMethod"])
             
@@ -864,26 +897,26 @@ def checkout():
                     cur.execute("UPDATE users SET availablemoney = ? WHERE email = ?", (money,jsonData["email"],))
                     conn.commit()
 
-                    cur.execute("INSERT INTO Orders (customerName,email,totalPrice,homeAddress) VALUES (?,?,?,?)", tuple(rowData))
+                    cur.execute("INSERT INTO Orders (customerName,email,totalPrice,itemList,homeAddress) VALUES (?,?,?,?,?)", tuple(rowData))
                     conn.commit()
 
-                    cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
-                    product = cur.fetchone()
-                    product = product[0]
-                    result = json.loads(product)
+                    # cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
+                    # product = cur.fetchone()
+                    # product = product[0]
+                    # result = json.loads(product)
 
-                    cur.execute("SELECT max(id) from orders")
-                    id = cur.fetchall()
-                    id = id[0][0]
-                    print(id)
+                    # cur.execute("SELECT max(id) from orders")
+                    # id = cur.fetchall()
+                    # id = id[0][0]
+                    # print(id)
 
-                    result.append(id)
-                    final = json.dumps(result)
+                    # result.append(id)
+                    # final = json.dumps(result)
 
-                    productList = []
-                    for product in result:
-                        cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
-                        conn.commit()
+                    # productList = []
+                    # for product in result:
+                    #     cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
+                    #     conn.commit()
                     
                     cur.execute("DELETE FROM cart where email = ?", (jsonData["email"],))
                     conn.commit()
@@ -893,25 +926,25 @@ def checkout():
                         "Error": "True"
                     }))
             else:
-                cur.execute("INSERT INTO Orders (customerName,email, totalPrice,homeAddress) VALUES (?,?,?,?)", tuple(rowData))
+                cur.execute("INSERT INTO Orders (customerName,email, totalPrice, itemList, homeAddress) VALUES (?,?,?,?,?)", tuple(rowData))
                 conn.commit()
 
-                cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
-                product = cur.fetchone()
-                product = product[0]
-                result = json.loads(product)
+                # cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
+                # product = cur.fetchone()
+                # product = product[0]
+                # result = json.loads(product)
 
-                cur.execute("SELECT max(id) from orders")
-                id = cur.fetchall()
-                id = id[0][0]
+                # cur.execute("SELECT max(id) from orders")
+                # id = cur.fetchall()
+                # id = id[0][0]
 
-                result.append(id)
-                final = json.dumps(result)
+                # result.append(id)
+                # final = json.dumps(result)
 
-                productList = []
-                for product in result:
-                    cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
-                    conn.commit()
+                # productList = []
+                # for product in result:
+                #     cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
+                #     conn.commit()
                 
                 cur.execute("DELETE FROM cart where email = ?", (jsonData["email"],))
                 conn.commit()
@@ -938,7 +971,9 @@ def getorders():
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
-            cur.execute("SELECT * FROM orders")
+            #email = request.args.get('email')
+            cur.execute("SELECT * FROM orders JOIN users on users.email = orders.email")
+            #JOIN users on users.email = orders.email where orders.email = ?", (email,))
             ordersData = cur.fetchall()
             print(ordersData)
 
@@ -999,7 +1034,7 @@ def postcomplaint():
 
 @app.route('/postdiscussion', methods = ['OPTIONS', 'POST'])
 @cross_origin()
-def profilecomment():
+def postdiscussion():
     if request.method == 'OPTIONS':
         return build_preflight_response
     elif request.method == 'POST':
@@ -1008,13 +1043,29 @@ def profilecomment():
 
             rowData = []
             rowData.append(jsonData["item_id"]) 
-            rowData.append(jsonData["commenter"])  
-            rowData.append(jsonData["comment"]) 
+            rowData.append(jsonData["commenter"]) #give me the users email please
+            rowData.append(jsonData["comment"])
             rowData.append(jsonData["vote"])
             
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
+            cur.execute("SELECT word FROM taboolist")
+            tabooData = cur.fetchall()
+
+            for word in tabooData:
+                word1 = ''.join(word)
+                if word1 in rowData[2]:
+                    badWord = "*"*len(word1)
+                    rowData[2] = rowData[2].replace(word1,badWord)
+                    cur.execute("INSERT INTO reviews (item_id,commenter,comment,vote) VALUES (?,?,?,?)", tuple(rowData))
+                    cur.execute("INSERT INTO warnings (email) VALUES (?)", (jsonData["commenter"],))
+                    conn.commit()
+
+                    return build_actual_response(jsonify({
+                        "Warning" : "You have been issued a warning for your use of an inappropriate word!"
+                    })) , 200
+            
             cur.execute("INSERT INTO Reviews (item_id,commenter,comment,vote) VALUES (?,?,?,?)", tuple(rowData))
             conn.commit()
             conn.close()
@@ -1022,6 +1073,7 @@ def profilecomment():
             return build_actual_response(jsonify({
                 "Status" : "1"
             })) , 200
+
         except Exception as e:
             body = {
                 'Error': "Can't post the comment!"
@@ -1133,6 +1185,50 @@ def writedefense():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
+@app.route('/choosebid', methods = ['OPTIONS', 'POST'])
+@cross_origin()
+def choosebid():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try:
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["bidId"])
+            rowData.append(jsonData["orderId"])
+            rowData.append(jsonData["delivery_company"])
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("UPDATE Bids set bidstatus = '1' where id = ?", (jsonData["bidId"],))
+            conn.commit()
+
+            cur.execute("UPDATE orders set delivery_company = ? where id = ?", (jsonData["delivery_company"], jsonData["orderId"],))
+            conn.commit()
+
+            cur.execute("SELECT tracking_info FROM orders")
+            trackingData = cur.fetchall()
+
+            #for order in trackingData:
+            tracking = (''.join(choice(ascii_uppercase + digits) for i in range (15)))
+            print(tracking)
+            print(type(tracking))
+            cur.execute("UPDATE orders set tracking_info = ? where id = ?", (tracking, jsonData["orderId"],))
+            conn.commit()
+
+            conn.close()
+
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Can't choose bid!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
 
 if __name__ == '__main__':
     app.run()
