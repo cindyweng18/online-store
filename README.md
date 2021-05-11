@@ -13,5 +13,6 @@ Team Members: Nour Elabbasy, Narayan Khanal, Nayma Labonna, Luigi Vincenzo Vingo
 
 ### For React
 
-1. Change your directory to Frontend and run: npm start
+1. Change your directory to Frontend and run: npm install
+2. To start the client side run: npm start
 
