@@ -129,7 +129,8 @@ CREATE TABLE Orders (
   email TEXT,
   totalPrice INT,
   itemList TEXT,
-  tracking_info TEXT,
+  homeAddress TEXT,
+  tracking_info INT,
   delivery_company TEXT,
   PRIMARY KEY (id)
 );

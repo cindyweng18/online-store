@@ -1,6 +1,6 @@
 import Footer from "./Footer";
 import Nav from "./Nav";
-//import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { useState, useEffect} from "react";
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
@@ -8,7 +8,7 @@ import {useRef} from 'react';
 import axios from "axios";
 
 function Checkout() {
-    //const history = useHistory();
+    const history = useHistory();
 
     // Variables to hold user's info and display on checkout
     const [disable, setDisable] = useState(false);
@@ -72,9 +72,10 @@ function Checkout() {
     const onBtnClick = e => {
         axios
         .post("/checkout", {
+            customerName: user,
             email: email,
             totalPrice: total,
-            payment_method: method,
+            paymentMethod: method,
         })
         .then( async (response) => {
             if (response.data.Error === 'True') {
@@ -92,7 +93,9 @@ function Checkout() {
         }
       }
 
-    // TODO: Item#7
+      const goToAccount = e => {
+        history.push(`/account/${localStorage.getItem("session")}`)
+      }
 
     return(
         <>
@@ -107,7 +110,7 @@ function Checkout() {
                 <hr />
                 <div className="d-flex justify-content-end">
                 {/* TODO: go to account */}
-                <Button onClick={() => setDisable(false)} variant="outline-success">
+                <Button onClick={() => goToAccount()} variant="outline-success">
                     Go to Account Management
                 </Button>
                 </div>
@@ -121,7 +124,7 @@ function Checkout() {
                 <hr />
                 <div className="d-flex justify-content-end">
                 {/* TODO: go to account */}
-                <Button onClick={() => setError(false)} variant="outline-danger">
+                <Button onClick={() => goToAccount()} variant="outline-danger">
                     Go to Account Management
                 </Button>
                 </div>
@@ -183,7 +186,9 @@ function Checkout() {
                         </div>
                     </div>
 
-                    <p> Address is not correct? Click here to change it.</p>
+                    <Button onClick={() => goToAccount()} variant="link">
+                        Address is not correct? Click here to change it.
+                    </Button>
 
 
                     <hr className="my-4" />

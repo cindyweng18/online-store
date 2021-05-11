@@ -1,3 +1,4 @@
+// Complaint Page
 import Footer from "./Footer";
 import Nav from "./Nav";
 import React from 'react';
@@ -5,44 +6,51 @@ import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { useState} from "react";
+import Alert from 'react-bootstrap/Alert';
+import axios from "axios";
 
 function Discussion() {
 
     const email = localStorage.getItem("userEmail");
-    const [type, setType] = useState("Review an Item");
+    var display = "";
+    if (email === null) {
+        display = "None";
+    };
+    const user = localStorage.getItem("session");
     const [complaineeType, setComplaineeType] = useState("Item - Computer or Computer Parts");
+    const [show, setShow] = useState(false);
     const [complaineeName, setComplaineeName] = useState("");
-    const [complainTitle, setComplainTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [validated, setValidated] = useState(false);
+    const [description, setDescription] = useState();
+    const [message, setMessage] = useState("");
 
     const handleSubmit = (event) => {
-        const form = event.currentTarget;
-        if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        setValidated(true);
+        event.preventDefault()
+        axios.post(`/postcomplaint`,{
+            complainer: user.replace("-"," "),
+            complaint: description,
+            offender: complaineeName,
+            email: email
+        })
+        .then(setShow(true))
+        .catch(async (e) => setMessage(e.response.data.message));
     };
 
     return(
         <>
         <Nav />
-        
-        <Card style={{ width: '80rem', margin:'auto' }}>
-            <Card.Header>Post a Review or Complaint</Card.Header>
+        <h1> {message} </h1>
+        <Alert show={show} variant="success">
+            <Alert.Heading>Your Complaint Has Been Posted!</Alert.Heading>
+            <p> Your Complaint Has Been Posted! Thank you! </p>
+        </Alert>
+
+        <Card style={{ display: display, width: '80rem', margin:'auto' }}>
+            <Card.Header>Post A Complaint</Card.Header>
             <Card.Body>
-                <Form noValidate validated={validated} onSubmit={handleSubmit}>
+                <Form onSubmit={(e) => handleSubmit(e)}>
                     <Form.Group controlId="exampleForm.ControlInput1">
                         <Form.Label>Email address</Form.Label>
                         <h6> {email} </h6>
-                    </Form.Group>
-                    <Form.Group controlId="exampleForm.ControlSelect1">
-                        <Form.Label>Select Type</Form.Label>
-                        <Form.Control as="select" onChange={(e) => {setType(e.target.value)}}>
-                        <option>Review an Item</option>
-                        <option>Complaint about a Store Clerk or Delivery Company</option>
-                        </Form.Control>
                     </Form.Group>
                     <Form.Group controlId="exampleForm.ControlSelect1">
                         <Form.Label>Select What/Who Are You Writing This For? </Form.Label>
@@ -54,38 +62,20 @@ function Discussion() {
                         <option>Customer</option>
                         </Form.Control>
                     </Form.Group>
-                    <Form.Group controlId="validationCustom01">
-                        <Form.Label>Name</Form.Label>
-                        <Form.Control as="textarea" rows={1} placeholder="Write the name of the item or person you are posting a complaint/review on" required/>
-                        <Form.Control.Feedback type="invalid"> Please write the name </Form.Control.Feedback>
-                    </Form.Group>
-                    <Form.Group controlId="exampleForm.ControlTextarea1">
-                        <Form.Label>Title</Form.Label>
-                        <Form.Control as="textarea" rows={1} placeholder="Title of your post" required/>
-                        <Form.Control.Feedback type="invalid"> Please write the title </Form.Control.Feedback>
-                    </Form.Group>
-                    <Form.Group controlId="exampleForm.ControlTextarea1">
-                        <Form.Label>Discussion</Form.Label>
-                        <Form.Control as="textarea" rows={3} placeholder="Description" required/>
-                        <Form.Control.Feedback type="invalid"> Please write a description </Form.Control.Feedback>
-                    </Form.Group>
-                </Form>
-                <Button variant="primary" type="submit">Post</Button>
-            </Card.Body>
-        </Card>
-        <hr />
-        <h1> Discussion </h1>
-        <Card style={{ width: '80rem', margin:'auto'}}>
-            <Card.Body>
-                <Card.Title>[Title]</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted">[Name]</Card.Subtitle>
-                <Card.Text>
-                [Discussion]
-                </Card.Text>
-                <Card.Text className="text-muted"> [Type] - [Date]</Card.Text>
-            </Card.Body>
-        </Card>
 
+                    <Form.Group controlId="exampleForm.ControlTextarea1">
+                        <Form.Label>Name of item/person you are writing about</Form.Label>
+                        <Form.Control as="textarea" rows={1} value={complaineeName} onChange={(e) => {setComplaineeName(e.target.value)}}/>
+                    </Form.Group>
+                    <Form.Group controlId="exampleForm.ControlTextarea1">
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control as="textarea" rows={3} value={description} onChange={(e) => {setDescription(e.target.value)}}  placeholder="Description"/>
+                    </Form.Group>
+                    <Button variant="primary" type="submit">Post</Button>
+                </Form>
+                
+            </Card.Body>
+        </Card>
 
         <Footer />
         </>

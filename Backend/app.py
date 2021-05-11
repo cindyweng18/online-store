@@ -313,6 +313,48 @@ def deliverylogin():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
+@app.route('/deliverycomplaints', methods = ['OPTIONS','GET'])
+@cross_origin()
+def deliverycomplaints():
+    if request.method == "OPTIONS":
+        return build_preflight_response
+    elif request.method == "GET":
+        try: 
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            name = request.args.get('name')
+
+            cur.execute("SELECT * FROM ComplaintsFiled WHERE offender = ?", (name,))
+            complaintsData = cur.fetchall()
+            print(complaintsData)
+
+
+            response = {}
+            response["deliveryData"] = {}
+            response["deliveryData"]["name"] = name
+            complaintsList = []
+            for complaint in complaintsData:
+                complaintOBJ = {}
+                complaintOBJ["complainerId"] = complaint[0]
+                complaintOBJ["complainer"] = complaint[1]
+                complaintOBJ["complaint"] = complaint[2]
+                complaintOBJ["offender"] = complaint[3]
+                complaintsList.append(complaintOBJ)
+            response["deliveryData"]["complaintsList"] = complaintsList
+            conn.close()
+            return build_actual_response(jsonify(response)), 200
+
+            conn.close()
+            raise Exception("Cannot view delivery account")
+            
+        except Exception as e:
+            body = {
+                'Error': "Cannot view delivery account",
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
 @app.route('/builddesktop', methods = ['OPTIONS','GET'])
 @cross_origin()
 def builddesktop():
@@ -489,17 +531,19 @@ def viewcomputeritem():
 
             cur.execute("SELECT * FROM computer where operating_system = ? AND main_purpose = ? AND architecture = ? AND name = ? AND type = ?", tuple(rowData))
             computerData = cur.fetchall()
+            print(computerData[0])
 
             response = {}
             response["computerData"] = {}
-            response["computerData"]["name"] = computerData[1]
-            response["computerData"]["imageBase64"] = computerData[2]
-            response["computerData"]["price"] = computerData[7]
-            response["computerData"]["voting"] = computerData[9]
-            response["computerData"]["discussion_id"] = computerData[10]
+            response["computerData"]["name"] = computerData[0][1]
+            response["computerData"]["imageBase64"] = computerData[0][2]
+            response["computerData"]["price"] = computerData[0][7]
+            response["computerData"]["voting"] = computerData[0][9]
+            response["computerData"]["discussion_id"] = computerData[0][10]
 
             cur.execute("SELECT * from reviews where item_id = ?", (id,))
             discussionData = cur.fetchall()
+            print(discussionData)
             reviews = []
             for review in discussionData:
                 reviewOBJ = {}
@@ -775,12 +819,19 @@ def viewaccount():
             cur = conn.cursor()
 
             email = request.args.get('email')
-            cur.execute("SELECT fullname,users.email,homeaddress, right(number,4), availablemoney FROM users JOIN creditcard on users.email = creditcard.email WHERE users.email = ?",(email,))
+            cur.execute("SELECT fullname,users.email,homeaddress, right(number,4), availablemoney, purchasehistory FROM users JOIN creditcard on users.email = creditcard.email WHERE users.email = ?",(email,))
             userData = cur.fetchall()
-            print(userData)
+
+            cur.execute("SELECT * FROM complaintsFiled WHERE email = ?", (email,))
+            complaintsMade = cur.fetchall()
+
+            cur.execute("SELECT * FROM complaintsFiled WHERE offender = ?", (userData[0][0],))
+            complaintsReceived = cur.fetchall()
 
             response = {}
             profiles = []
+            complaintsList = []
+            complaintList = []
             for profile in userData:
                 profileOBJ = {}
                 profileOBJ["fullName"] = profile[0]
@@ -788,9 +839,23 @@ def viewaccount():
                 profileOBJ["homeAddress"] = profile[2]
                 profileOBJ["creditCard"] = profile[3]
                 profileOBJ["availableMoney"] = profile[4]
+                profileOBJ["purchaseHistory"] = profile[5]
                 if profileOBJ not in profiles:
                     profiles.append(profileOBJ)
             response["userData"] = profiles
+
+            for complaint in complaintsMade:
+                complaintOBJ = {}
+                complaintOBJ["complaint"] = complaint[2]
+                complaintOBJ["offender"] = complaint[3]
+                complaintsList.append(complaintOBJ)
+            response["userData"][0]["complaintsMade"] = complaintsList
+            for complaint in complaintsReceived:
+                complaintOBJ = {}
+                complaintOBJ["complainer"] = complaint[1]
+                complaintOBJ["complaint"] = complaint[2]
+                complaintList.append(complaintOBJ)
+            response["userData"][0]["complaintsReceived"] = complaintList
 
             conn.close()
             return build_actual_response(jsonify(response))
@@ -816,7 +881,9 @@ def checkout():
             rowData.append(jsonData["email"])
             rowData.append(jsonData["totalPrice"])
             rowData.append(jsonData["itemList"])
+            rowData.append(jsonData["homeAddress"])
             rowData.append(jsonData["paymentMethod"])
+            
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
@@ -830,7 +897,7 @@ def checkout():
                     cur.execute("UPDATE users SET availablemoney = ? WHERE email = ?", (money,jsonData["email"],))
                     conn.commit()
 
-                    cur.execute("INSERT INTO Orders (customerName,email,totalPrice,itemList) VALUES (?,?,?,?)", tuple(rowData))
+                    cur.execute("INSERT INTO Orders (customerName,email,totalPrice,itemList,homeAddress) VALUES (?,?,?,?,?)", tuple(rowData))
                     conn.commit()
 
                     # cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
@@ -859,7 +926,7 @@ def checkout():
                         "Error": "True"
                     }))
             else:
-                cur.execute("INSERT INTO Orders (customerName,email, totalPrice, itemList) VALUES (?,?,?,?)", tuple(rowData))
+                cur.execute("INSERT INTO Orders (customerName,email, totalPrice, itemList, homeAddress) VALUES (?,?,?,?,?)", tuple(rowData))
                 conn.commit()
 
                 # cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
@@ -914,8 +981,12 @@ def getorders():
             orders = []
             for order in ordersData:
                 orderOBJ = {}
+                orderOBJ["orderId"] = order[0]
                 orderOBJ["customerName"] = order[1]
-                orderOBJ["address"] = order[9]
+                orderOBJ["totalPrice"] = order[3]
+                orderOBJ["homeaddress"] = order[4]
+                orderOBJ["tracking"] = order[5]
+                orderOBJ["deliverycompany"] = order[6]
                 orders.append(orderOBJ)
             response["ordersData"] = orders
 
@@ -1052,7 +1123,7 @@ def gethashtags():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
-@app.route('/postbid', methods = ['OPTIONS', 'POST'])
+@app.route('/postbid', methods = ['OPTIONS', 'POST']) #for delivery company
 @cross_origin()
 def postbid():
     if request.method == 'OPTIONS':
