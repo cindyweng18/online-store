@@ -68,11 +68,11 @@ CREATE TABLE Manager (
 CREATE TABLE Parts (
   id INT AUTO_INCREMENT,
   name TEXT,
+  type TEXT,
   imageBase64 LONGTEXT,
   operating_system TEXT,
   main_purpose TEXT,
   architecture TEXT,
-  type TEXT,
   price INT,
   voting INT,
   discussion_id INT,
@@ -153,14 +153,15 @@ CREATE TABLE warnings(
   PRIMARY KEY (id)
 );
 
-LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/CPUParts2.csv' 
+--CHANGE THE FILE TO WHERE THISS LOCAL FILE IS LOCATED
+LOAD DATA local INFILE '/Users/cindyweng/Desktop/online-store/Backend/CPUParts2.csv' 
 INTO TABLE parts 
 FIELDS TERMINATED BY ',' 
 ignore 1 lines
-(name,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion_id,company_id)
+(id,name,type,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion_id,company_id)
 set id = null;
 
-LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/TabooList.txt' 
+LOAD DATA local INFILE '/Users/cindyweng/Desktop/online-store/Backend/TabooList.txt' 
 INTO TABLE TabooList 
 (word);
 
