@@ -34,13 +34,6 @@ function Login() {
       })
       .catch((e) => setMessage("Something went wrong. Try Again."));
       };
-
-      // useEffect(() => {
-      //   const route = localStorage.getItem("route");
-      //   const session = localStorage.getItem("session");
-      //   if (localStorage.getItem("session") !== null)
-      //   history.push(`/${route}/${session}`);
-      // }, [history]);
       
 
     return (

@@ -9,7 +9,9 @@ import axios from "axios";
 function Delivery(props) {
     const { params } = props.match;
     const history = useHistory();
-    const [data, setData] = useState();
+    const [data, setData] = useState([]);
+    const [complaints, setComplaints] = useState([]);
+
 
     const handleLogout = () => {
         localStorage.clear();
@@ -19,7 +21,9 @@ function Delivery(props) {
     useEffect(() => {
         const fetchData = async () => {
             const getItem = await axios.get(`/getorders`);
-            console.log(getItem.data);
+            const getComplaints = await axios.get(`/deliverycomplaints?name=${params.name}`)
+            //console.log(getComplaints.data['deliveryData']['complaintsList']);
+            setComplaints(getComplaints.data['deliveryData']['complaintsList']);
             setData(getItem.data['ordersData']);
         }
         fetchData();
@@ -38,7 +42,7 @@ function Delivery(props) {
             <thead>
                 <tr>
                 <th>Order #</th>
-                <th>Customer Email</th>
+                <th>Customer Name</th>
                 <th>Customer Home Address</th>
                 <th>Customer Order's Total Price</th>
                 <th>Action</th>
@@ -47,11 +51,11 @@ function Delivery(props) {
             <tbody>
 
                 {data.map(item => 
-                <tr>
-                    <td> {item.id} </td>
-                    <td> {item.email} </td>
+                <tr key={item}>
+                    <td> {item.orderId} </td>
+                    <td> {item.customerName} </td>
                     <td> {item.homeaddress} </td>
-                    <td> {item.totalprice} </td>
+                    <td> {item.totalPrice} </td>
                     <td>
                     <InputGroup className="mb-3">
                     <InputGroup.Prepend>
@@ -112,44 +116,33 @@ function Delivery(props) {
             <thead>
                 <tr>
                 <th>#</th>
-                <th>Complaint</th>
+                <th>Complainer</th>
+                <th>Complaint Description</th>
                 <th>Defense</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                <td>1</td>
-                <td>Mark</td>
-                <td>
-                <InputGroup className="mb-3">
-                    <FormControl
-                    placeholder="Description"
-                    aria-label="Description"
-                    aria-describedby="basic-addon2"
-                    />
-                    <InputGroup.Append>
-                    <Button variant="outline-primary">Submit</Button>
-                    </InputGroup.Append>
-                </InputGroup>
-                </td>
-                </tr>
+                {complaints.map(item =>
+                    <tr key={item}>
+                        <td> {item.complainerId} </td>
+                        <td> {item.complainer} </td>
+                        <td> {item.complaint} </td>
+                        <td>
+                        <InputGroup className="mb-3">
+                            <FormControl
+                            placeholder="Description"
+                            aria-label="Description"
+                            aria-describedby="basic-addon2"
+                            />
+                            <InputGroup.Append>
+                            <Button variant="outline-primary">Submit</Button>
+                            </InputGroup.Append>
+                        </InputGroup>
+                        </td>
+                    </tr>
 
-                <tr>
-                <td>2</td>
-                <td>Jacob</td>
-                <td>
-                <InputGroup className="mb-3">
-                    <FormControl
-                    placeholder="Description"
-                    aria-label="Description"
-                    aria-describedby="basic-addon2"
-                    />
-                    <InputGroup.Append>
-                    <Button variant="outline-primary">Submit</Button>
-                    </InputGroup.Append>
-                </InputGroup>
-                </td>
-                </tr>
+                    )}
+
 
             </tbody>
         </Table>

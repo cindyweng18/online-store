@@ -39,7 +39,7 @@ const Nav = () => {
                 <a className="nav-link active" aria-current="page" href="/parts">Computer Parts</a>
               </li>
               <li className="nav-item">
-                <a className="nav-link active" aria-current="page" href="/discussion">Post Complain/Review</a>
+                <a className="nav-link active" aria-current="page" href="/discussion">Post A Complain</a>
               </li>
             </ul>
             <span className="navbar-text">
