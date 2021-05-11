@@ -130,7 +130,7 @@ CREATE TABLE Orders (
   totalPrice INT,
   itemList TEXT,
   homeAddress TEXT,
-  tracking_info INT,
+  tracking_info TEXT,
   delivery_company TEXT,
   PRIMARY KEY (id)
 );
@@ -141,6 +141,7 @@ CREATE TABLE Bids (
   order_id INT, 
   bidprice INT,
   bidstatus BOOLEAN DEFAULT '0',
+  justification TEXT,
   PRIMARY KEY (id)
   );
 

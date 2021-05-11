@@ -984,9 +984,9 @@ def getorders():
                 orderOBJ["orderId"] = order[0]
                 orderOBJ["customerName"] = order[1]
                 orderOBJ["totalPrice"] = order[3]
-                orderOBJ["homeaddress"] = order[4]
-                orderOBJ["tracking"] = order[5]
-                orderOBJ["deliverycompany"] = order[6]
+                orderOBJ["homeaddress"] = order[5]
+                orderOBJ["tracking"] = order[6]
+                orderOBJ["deliverycompany"] = order[7]
                 orders.append(orderOBJ)
             response["ordersData"] = orders
 
@@ -1198,26 +1198,53 @@ def choosebid():
             rowData.append(jsonData["bidId"])
             rowData.append(jsonData["orderId"])
             rowData.append(jsonData["delivery_company"])
+            rowData.append(jsonData["justification"])
+            rowData.append(jsonData["email"]) # clerk email
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
-            cur.execute("UPDATE Bids set bidstatus = '1' where id = ?", (jsonData["bidId"],))
+            cur.execute("SELECT id from bids WHERE bidprice = (SELECT min(bidprice) FROM bids)")
+            priceData = cur.fetchone()
+            price = priceData[0]
+
+            cur.execute("UPDATE bids set justification = ? where id = ?", (jsonData["justification"], jsonData["bidId"],))
             conn.commit()
 
-            cur.execute("UPDATE orders set delivery_company = ? where id = ?", (jsonData["delivery_company"], jsonData["orderId"],))
-            conn.commit()
+            cur.execute("SELECT justification from bids where id = ?", (jsonData["bidId"],))
+            defenseData = cur.fetchone()
+            defense = defenseData[0]
 
-            cur.execute("SELECT tracking_info FROM orders")
-            trackingData = cur.fetchall()
+            if jsonData["bidId"] != price and not all(defenseData):
+                cur.execute("INSERT INTO warnings (email) VALUES (?)", (jsonData["email"],))
+                conn.commit()
 
-            #for order in trackingData:
-            tracking = (''.join(choice(ascii_uppercase + digits) for i in range (15)))
-            print(tracking)
-            print(type(tracking))
-            cur.execute("UPDATE orders set tracking_info = ? where id = ?", (tracking, jsonData["orderId"],))
-            conn.commit()
+                cur.execute("UPDATE Bids set bidstatus = '1' where id = ?", (jsonData["bidId"],))
+                conn.commit()
 
+                cur.execute("UPDATE orders set delivery_company = ? where id = ?", (jsonData["delivery_company"], jsonData["orderId"],))
+                conn.commit()
+
+                cur.execute("SELECT tracking_info FROM orders")
+                trackingData = cur.fetchall()
+
+                tracking = (''.join(choice(ascii_uppercase + digits) for i in range (15)))
+                cur.execute("UPDATE orders set tracking_info = ? where id = ?", (tracking, jsonData["orderId"],))
+                conn.commit()
+            else:
+                cur.execute("UPDATE Bids set bidstatus = '1' where id = ?", (jsonData["bidId"],))
+                conn.commit()
+
+                cur.execute("UPDATE orders set delivery_company = ? where id = ?", (jsonData["delivery_company"], jsonData["orderId"],))
+                conn.commit()
+
+                cur.execute("SELECT tracking_info FROM orders")
+                trackingData = cur.fetchall()
+
+                tracking = (''.join(choice(ascii_uppercase + digits) for i in range (15)))
+                cur.execute("UPDATE orders set tracking_info = ? where id = ?", (tracking, jsonData["orderId"],))
+                conn.commit()
+            
             conn.close()
 
             return build_actual_response(jsonify({
