@@ -21,6 +21,7 @@ function Account(props) {
     const [money, setMoney] = useState();
     const [complaintsMade, setComplaintsMade] = useState([]);
     const [complaintsReceived, setComplaintsReceived] = useState([]);
+    const [orders, setOrders] = useState([]);
     const [message, setMessage] = useState("");
 
     // New Card Info Input
@@ -42,6 +43,7 @@ function Account(props) {
             setMoney(getUser.data['userData'][0]['availableMoney']);
             setComplaintsMade(getUser.data['userData'][0]['complaintsMade']);
             setComplaintsReceived(getUser.data['userData'][0]['complaintsReceived']);
+            setOrders(getUser.data['userData'][0]['purchaseHistory']);
             if (getUser.data['userData'][0]['availableMoney'] === null) {
                 setCard("");
             } else {
@@ -131,7 +133,7 @@ function Account(props) {
                         <td>
                         <InputGroup className="mb-3">
                             <FormControl
-                            autofocus
+                            autoFocus
                             placeholder="New Name"
                             aria-label="New Name"
                             aria-describedby="basic-addon2"
@@ -296,30 +298,22 @@ function Account(props) {
                         <thead>
                             <tr>
                             <th>Order Id</th>
-                            <th>Full Name</th>
-                            <th>Home Address</th>
-                            <th>Total Price</th>
+                            <th>Order Details</th>
+                            <th>Order Total </th>
                             <th>Delivery Company</th>
                             <th>Tracking Information</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                            <td>1</td>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
+                            {orders.map(item => 
+                            <tr key={item.id}>
+                                <td> {item.id} </td>
+                                <td> {item.items} </td>
+                                <td> {item.totalPrice} </td>
+                                <td> {item.delivery_company} </td>
+                                <td> {item.tracking_info} </td>
                             </tr>
-                            <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                            </tr>
+                                )}
                         </tbody>
                     </Table>
                 </div>

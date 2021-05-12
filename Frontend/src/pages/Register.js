@@ -11,9 +11,6 @@ function Register() {
     const [full_name, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [address, setAddress] = useState("");
-    const [card, setCard] = useState("");
-    const [money, setMoney] = useState(0);
-    const [purchase, setPurchase] = useState("");
     const [password, setPassword] = useState("");
 
     const [message, setMessage] = useState("");
@@ -30,9 +27,6 @@ function Register() {
           email: email,
           password: password,
           homeAddress: address,
-          creditCard: card,
-          availableMoney: money,
-          purchaseHistory: purchase,
           
         })
         .then(async () => history.push("/login"))
@@ -72,37 +66,14 @@ function Register() {
               />
             </Form.Group>
             <Form.Group size="lg" controlId="address">
-              <Form.Label>Home Address</Form.Label>
+              <Form.Label>Home Address (Street Number and Name, APT/FL, City, State, ZIP Code)</Form.Label>
               <Form.Control
                 type="address"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
               />
             </Form.Group>
-            <Form.Group size="lg" controlId="card">
-              <Form.Label>Credit Card</Form.Label>
-              <Form.Control
-                type="card"
-                value={card}
-                onChange={(e) => setCard(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group size="lg" controlId="money">
-              <Form.Label>Available Money</Form.Label>
-              <Form.Control
-                type="money"
-                value={money}
-                onChange={(e) => setMoney(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group size="lg" controlId="purchase">
-              <Form.Label>Purchase History</Form.Label>
-              <Form.Control
-                type="purchase"
-                value={purchase}
-                onChange={(e) => setPurchase(e.target.value)}
-              />
-            </Form.Group>
+
             <Button block size="lg" type="submit" disabled={!validateForm()}>
               Register
             </Button>

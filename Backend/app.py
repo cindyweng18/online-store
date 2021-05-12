@@ -176,16 +176,16 @@ def clerklogin():
             jsonData = request.json
 
             rowData = [] # Data to be uploaded to database
-            rowData.append(jsonData["email"])
-            rowData.append(jsonData["password"])
             rowData.append(jsonData["name"])
+            rowData.append(jsonData["password"])
+            
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
-            cur.execute("SELECT * FROM clerk WHERE email = ? AND password = ? ",tuple(rowData))
+            cur.execute("SELECT * FROM clerk WHERE name = ? AND password = ? ",tuple(rowData))
             userData = cur.fetchone()
 
-            cur.execute("SELECT * FROM clerk WHERE email = ?",(jsonData["email"],))
+            cur.execute("SELECT * FROM clerk WHERE name = ?",(jsonData["name"],))
             peopleData = cur.fetchone()
 
             cur.execute("SELECT * FROM ComplaintsFiled WHERE offender = ?", (jsonData["name"],))
@@ -197,6 +197,7 @@ def clerklogin():
                 response["verified"] = {}
                 response["verified"] = True
                 response["loginData"]["name"] = peopleData[2]
+                response["loginData"]["email"] = peopleData[1]
 
                 complaintsList = []
                 for complaint in complaintsData:
@@ -798,7 +799,7 @@ def viewaccount():
             cur = conn.cursor()
 
             email = request.args.get('email')
-            cur.execute("SELECT fullname,users.email,homeaddress, right(number,4), availablemoney, purchasehistory FROM users JOIN creditcard on users.email = creditcard.email WHERE users.email = ?",(email,))
+            cur.execute("SELECT fullname,users.email,homeaddress, right(number,4), availablemoney FROM users JOIN creditcard on users.email = creditcard.email WHERE users.email = ?",(email,))
             userData = cur.fetchall()
 
             cur.execute("SELECT * FROM complaintsFiled WHERE email = ?", (email,))
@@ -806,6 +807,9 @@ def viewaccount():
 
             cur.execute("SELECT * FROM complaintsFiled WHERE offender = ?", (userData[0][0],))
             complaintsReceived = cur.fetchall()
+
+            cur.execute("SELECT * FROM orders WHERE email = ?", (email,))
+            purchaseData = cur.fetchall()
 
             response = {}
             profiles = []
@@ -818,7 +822,6 @@ def viewaccount():
                 profileOBJ["homeAddress"] = profile[2]
                 profileOBJ["creditCard"] = profile[3]
                 profileOBJ["availableMoney"] = profile[4]
-                profileOBJ["purchaseHistory"] = profile[5]
                 if profileOBJ not in profiles:
                     profiles.append(profileOBJ)
             response["userData"] = profiles
@@ -835,6 +838,17 @@ def viewaccount():
                 complaintOBJ["complaint"] = complaint[2]
                 complaintList.append(complaintOBJ)
             response["userData"][0]["complaintsReceived"] = complaintList
+
+            purchaseList = []
+            for purchase in purchaseData:
+                purchaseOBJ = {}
+                purchaseOBJ["id"] = purchase[0]
+                purchaseOBJ["totalPrice"] = purchase[3]
+                purchaseOBJ["tracking_info"] = purchase[6]
+                purchaseOBJ["delivery_company"] = purchase[7]
+                purchaseOBJ["items"] = purchase[4]
+                purchaseList.append(purchaseOBJ)
+            response["userData"][0]["purchaseHistory"] = purchaseList
 
             conn.close()
             return build_actual_response(jsonify(response))
@@ -951,7 +965,7 @@ def getorders():
             cur = conn.cursor()
 
             #email = request.args.get('email')
-            cur.execute("SELECT * FROM orders JOIN users on users.email = orders.email")
+            cur.execute("SELECT * FROM orders")
             #JOIN users on users.email = orders.email where orders.email = ?", (email,))
             ordersData = cur.fetchall()
             print(ordersData)
@@ -1102,6 +1116,40 @@ def gethashtags():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
+@app.route('/getbids', methods = ['OPTIONS', 'GET']) # For store clerk
+@cross_origin()
+def getbids():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'GET':
+        try:
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("SELECT * FROM bids")
+            bidsData = cur.fetchall()
+            print(bidsData)
+
+            response = {}
+            bids = []
+            for bid in bidsData:
+                bidOBJ = {}
+                bidOBJ["bidId"] = bid[0]
+                bidOBJ["deliverycompany"] = bid[1]
+                bidOBJ["orderId"] = bid[2]
+                bidOBJ["bidPrice"] = bid[3]
+                bids.append(bidOBJ)
+            response["bidsData"] = bids
+
+            conn.close()
+            return build_actual_response(jsonify(response))
+        except Exception as e:
+            body = {
+                'Error': "Can't view bids!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
 @app.route('/postbid', methods = ['OPTIONS', 'POST']) #for delivery company
 @cross_origin()
 def postbid():
@@ -1211,7 +1259,7 @@ def choosebid():
                 cur.execute("UPDATE orders set tracking_info = ? where id = ?", (tracking, jsonData["orderId"],))
                 conn.commit()
 
-                cur.execute("DELETE * FROM bids where order_id = ?", (jsonData["orderId"]))
+                cur.execute("DELETE FROM bids where order_id = ?", (jsonData["orderId"],))
                 conn.commit()
             else:
                 cur.execute("UPDATE Bids set bidstatus = '1' where id = ?", (jsonData["bidId"],))
@@ -1227,7 +1275,7 @@ def choosebid():
                 cur.execute("UPDATE orders set tracking_info = ? where id = ?", (tracking, jsonData["orderId"],))
                 conn.commit()
 
-                cur.execute("DELETE * FROM bids where order_id = ?", (jsonData["orderId"]))
+                cur.execute("DELETE FROM bids where order_id = ?", (jsonData["orderId"],))
                 conn.commit()
             
             conn.close()
