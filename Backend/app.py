@@ -382,10 +382,12 @@ def builddesktop():
 
             cur.execute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? AND type = ? ", tuple(rowData))
             computerData = cur.fetchall()
+            print(computerData)
             response = {}
             parts = []
             for part in computerData:
                 partsOBJ = {}
+                partsOBJ["itemId"] = part[0]
                 partsOBJ["name"] = part[1]
                 partsOBJ["imageBase64"] = part[2]
                 partsOBJ["price"] = part[7]
@@ -468,16 +470,18 @@ def viewpartitem():
 
             response = {}
             response["partData"] = {}
-            response["partData"]["name"] = partData[2]
-            response["partData"]["imageBase64"] = partData[4]
-            response["partData"]["price"] = partData[9]
-            response["partData"]["voting"] = float(voteData[0])
+            response["partData"]["name"] = partData[1]
+            response["partData"]["imageBase64"] = partData[3]
+            response["partData"]["price"] = partData[7]
+            response["partData"]["voting"] = 0 if voteData[0] is None else float(voteData[0])
             
             cur.execute("SELECT * from reviews where item_id = ?", (id,))
             discussionData = cur.fetchall()
+            print(discussionData)
             reviews = []
             for review in discussionData:
                 reviewOBJ = {}
+                reviewOBJ["commentId"] = review[0]
                 reviewOBJ["commenter"] = review [2]
                 reviewOBJ["comment"] = review [3]
                 reviewOBJ["vote"] = review [4]
@@ -509,25 +513,14 @@ def viewcomputeritem():
 
             cur.execute("SELECT * FROM computer where id = ? ", (id,))
             computerData = cur.fetchone()
-
-            rowData = []
-            rowData.append(request.args.get('operating_system'))
-            rowData.append(request.args.get('main_purpose'))
-            rowData.append(request.args.get('architecture'))
-            rowData.append(request.args.get('name'))
-            rowData.append(request.args.get('type'))
-
-            cur.execute("SELECT * FROM computer where operating_system = ? AND main_purpose = ? AND architecture = ? AND name = ? AND type = ?", tuple(rowData))
-            computerData = cur.fetchall()
-            print(computerData[0])
+            print(computerData)
 
             response = {}
             response["computerData"] = {}
-            response["computerData"]["name"] = computerData[0][1]
-            response["computerData"]["imageBase64"] = computerData[0][2]
-            response["computerData"]["price"] = computerData[0][7]
-            response["computerData"]["voting"] = computerData[0][9]
-            response["computerData"]["discussion_id"] = computerData[0][10]
+            response["computerData"]["name"] = computerData[1]
+            response["computerData"]["imageBase64"] = computerData[2]
+            response["computerData"]["price"] = computerData[7]
+            response["computerData"]["voting"] = computerData[9]
 
             cur.execute("SELECT * from reviews where item_id = ?", (id,))
             discussionData = cur.fetchall()

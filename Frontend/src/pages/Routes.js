@@ -34,7 +34,7 @@ const Routes = () => {
         <Route exact={true} path={"/:computer"} component={Choices} />
         <Route exact={true} path={"/parts/:os/:purpose/:arch/:type"} component={Parts} />
         <Route exact={true} path={"/:computer/:os/:purpose/:arch"} component={Computer} />
-        <Route exact={true} path={"/parts/:os/:purpose/:arch/:type/:name"} component={ItemPart} />
+        <Route exact={true} path={"/parts/:id"} component={ItemPart} />
         <Route exact={true} path={"/:computer/:os/:purpose/:arch/:name"} component={Item} />
       </Switch>
       </Context>
