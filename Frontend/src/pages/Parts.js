@@ -46,7 +46,7 @@ function Parts(props) {
                                 <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
 
                                     {items.map(item =>
-                                        <div key={item} className="col">
+                                        <div key={item.itemId} className="col">
                                             <div className="card shadow-sm">
                                                 <img src="..." className="card-img-top" alt="..." />
                                                 <div className="card-body">
@@ -54,7 +54,7 @@ function Parts(props) {
                                                     <p className="card-text"> Estimated Value: ${item.price}</p>
                                                     <div className="d-flex justify-content-between align-items-center">
                                                         <div className="btn-group">
-                                                            <a className="btn btn-primary" href={`/parts/${params.os}/${params.purpose}/${params.arch}/${params.type}/${item.name.split(" ").join("-")}`} role="button">Customize and Buy</a>
+                                                            <a className="btn btn-primary" href={`/parts/${item.itemId}`} role="button">Customize and Buy</a>
                                                         </div>
                                                     </div>
                                                 </div>

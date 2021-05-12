@@ -22,6 +22,7 @@ function Account(props) {
     const [complaintsMade, setComplaintsMade] = useState([]);
     const [complaintsReceived, setComplaintsReceived] = useState([]);
     const [orders, setOrders] = useState([]);
+    const [votes, setVotes] = useState([]);
     const [message, setMessage] = useState("");
 
     // New Card Info Input
@@ -44,6 +45,7 @@ function Account(props) {
             setComplaintsMade(getUser.data['userData'][0]['complaintsMade']);
             setComplaintsReceived(getUser.data['userData'][0]['complaintsReceived']);
             setOrders(getUser.data['userData'][0]['purchaseHistory']);
+            setVotes(getUser.data['userData'][0]['votesCasted']);
             if (getUser.data['userData'][0]['availableMoney'] === null) {
                 setCard("");
             } else {
@@ -360,19 +362,17 @@ function Account(props) {
                     <Table striped bordered hover>
                         <thead>
                             <tr>
-                            <th>Item Name</th>
+                            <th>Item #</th>
                             <th>Vote </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                            <td>1</td>
-                            <td>Mark</td>
-                            </tr>
-                            <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                            </tr>
+                            {votes.map(item => 
+                                <tr item={item.item_id}>
+                                    <td> {item.item_id} </td>
+                                    <td> {item.vote} </td>
+                                </tr>
+                                )}
                         </tbody>
                     </Table>
                 </div>
