@@ -109,7 +109,6 @@ function Checkout() {
                 <p> Thank you for shopping at Online Store! </p>
                 <hr />
                 <div className="d-flex justify-content-end">
-                {/* TODO: go to account */}
                 <Button onClick={() => goToAccount()} variant="outline-success">
                     Go to Account Management
                 </Button>
@@ -123,7 +122,6 @@ function Checkout() {
                 </p>
                 <hr />
                 <div className="d-flex justify-content-end">
-                {/* TODO: go to account */}
                 <Button onClick={() => goToAccount()} variant="outline-danger">
                     Go to Account Management
                 </Button>

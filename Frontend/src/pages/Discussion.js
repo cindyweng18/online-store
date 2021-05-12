@@ -23,6 +23,7 @@ function Discussion() {
     const [description, setDescription] = useState();
     const [message, setMessage] = useState("");
 
+    console.log(complaineeType);
     const handleSubmit = (event) => {
         event.preventDefault()
         axios.post(`/postcomplaint`,{
