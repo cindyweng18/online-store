@@ -430,6 +430,7 @@ def choosecomputer():
             computers = []
             for computer in computerData:
                 computerOBJ = {}
+                computerOBJ["computerId"] = computer[0]
                 computerOBJ["name"] = computer[1]
                 computerOBJ["imageBase64"] = computer[2]
                 computerOBJ["price"] = computer[7]
