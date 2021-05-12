@@ -28,8 +28,12 @@ function Employee() {
       })
       .then(async (response) => {
         localStorage.clear();
+        if (employee === "clerk") {
+            localStorage.setItem("email", response.data['loginData']['email']);
+        }
         localStorage.setItem("route", route);
         localStorage.setItem("session", response.data['loginData']['name']);
+        localStorage.setItem("complaints", JSON.stringify(response.data['loginData']['complaintsReceived']))
         history.push(`/${route}/${response.data['loginData']['name'].replace(" ", "-")}`);
       })
       .catch((e) => setMessage("Something went wrong. Try Again."));
