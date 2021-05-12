@@ -93,6 +93,14 @@ def userlogin():
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
+            cur.execute("SELECT count(decision) from warnings where email = ? and decision = 1", (jsonData["email"],))
+            warningData = cur.fetchone()
+            warning = warningData[0]
+            print(warning)
+
+            # if warning == 1:
+            #     print("no")
+
             cur.execute("SELECT * FROM avoidlist where email = ?", (jsonData["email"],))
             avoidData = cur.fetchone()
 
@@ -808,6 +816,9 @@ def viewaccount():
             cur.execute("SELECT * FROM complaintsFiled WHERE offender = ?", (userData[0][0],))
             complaintsReceived = cur.fetchall()
 
+            cur.execute("SELECT * FROM reviews WHERE commenter = ?", (email,))
+            votesData = cur.fetchall()
+
             cur.execute("SELECT * FROM orders WHERE email = ?", (email,))
             purchaseData = cur.fetchall()
 
@@ -815,6 +826,8 @@ def viewaccount():
             profiles = []
             complaintsList = []
             complaintList = []
+            voteList = []
+
             for profile in userData:
                 profileOBJ = {}
                 profileOBJ["fullName"] = profile[0]
@@ -832,6 +845,7 @@ def viewaccount():
                 complaintOBJ["offender"] = complaint[3]
                 complaintsList.append(complaintOBJ)
             response["userData"][0]["complaintsMade"] = complaintsList
+
             for complaint in complaintsReceived:
                 complaintOBJ = {}
                 complaintOBJ["complainer"] = complaint[1]
@@ -839,6 +853,13 @@ def viewaccount():
                 complaintList.append(complaintOBJ)
             response["userData"][0]["complaintsReceived"] = complaintList
 
+            for vote in votesData:
+                voteOBJ = {}
+                voteOBJ["item_id"] = vote[1]
+                voteOBJ["vote"] = vote[4]
+                voteList.append(voteOBJ)
+            response["userData"][0]["votesCasted"] = voteList
+                
             purchaseList = []
             for purchase in purchaseData:
                 purchaseOBJ = {}
@@ -1286,6 +1307,39 @@ def choosebid():
         except Exception as e:
             body = {
                 'Error': "Can't choose bid!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/avoidaccount', methods = ['OPTIONS','POST'])
+@cross_origin()
+def avoidaccount():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try:
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["email"])
+            rowData.append(jsonData["id"])
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("UPDATE warnings set decision = 1 where id = ?", (jsonData["id"]))
+            conn.commit()
+            
+            cur.execute("INSERT INTO avoidlist (email) VALUES (?)", tuple(rowData))
+            conn.commit()
+            conn.close()
+            
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Account was not deleted!"
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
