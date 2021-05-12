@@ -155,41 +155,24 @@ CREATE TABLE warnings(
   PRIMARY KEY (id)
 );
 
---CHANGE THE FILE TO WHERE THISS LOCAL FILE IS LOCATED
-LOAD DATA local INFILE '/Users/cindyweng/Desktop/online-store/Backend/CPUParts2.csv' 
+--CHANGE THE FILE TO WHERE THIS LOCAL FILE IS LOCATED
+LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/CPUParts2.csv' 
 INTO TABLE parts 
 FIELDS TERMINATED BY ',' 
 ignore 1 lines
 (id,name,type,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion_id,company_id)
 set id = null;
 
-LOAD DATA local INFILE '/Users/cindyweng/Desktop/online-store/Backend/TabooList.txt' 
+LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/ComputerSystems1.csv' 
+INTO TABLE computer 
+FIELDS TERMINATED BY ',' 
+ignore 1 lines
+(id,name,type,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion)
+set id = null;
+
+LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/TabooList.txt' 
 INTO TABLE TabooList 
 (word);
-
-INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, type, price, voting, discussion_id, company_id) 
-  VALUES ('Intel i5','example','Windows','Gaming','Intel', 'CPU', 1000,8,0,0);
-
-INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, type, price, voting, discussion_id, company_id) 
-  VALUES ('Apple M1 Chip','example','macOS','Business','Intel', 'CPU', 1700,7,0,0);
-
-INSERT INTO Parts (name, imageBase64, operating_system, main_purpose, architecture, type, price, voting, discussion_id, company_id) 
-  VALUES ('Samsung 390 Series 24" LED Curved FHD FreeSync Monitor','example2','Windows','Business','Intel', 'Monitor',800,9,0,0);
-
-INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, voting, discussion) 
-  VALUES ('Part1','example','macOS','Gaming','Intel',1000,0,0);
-
-INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, type, voting, discussion) 
-  VALUES ('Entry level gaming build','example','Windows','Gaming','Intel',2000, 'desktop', 9.5,0);
-
-INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, type, voting, discussion) 
-  VALUES ('Professional gaming build','example','Windows','Gaming','Intel',4000,'desktop', 10,0);
-
-INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, type, voting, discussion) 
-  VALUES ('Macbook Pro 2020','example','macOS','Business','Intel',2500,'laptop', 9.5,0);
-
-INSERT INTO Computer (name, imageBase64, operating_system, main_purpose, architecture, price, type, voting, discussion) 
-  VALUES ('ASUS ROG Zephyrus G14 14" Gaming Laptop','example','Windows','Gaming','AMD',1700,'laptop', 8.5,0);
 
 INSERT INTO DeliveryCompany (name,password) VALUES ('Fedex','company1');
 INSERT INTO DeliveryCompany (name,password) VALUES ('UPS','company2');

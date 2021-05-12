@@ -93,14 +93,6 @@ def userlogin():
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
-            cur.execute("SELECT count(decision) from warnings where email = ? and decision = 1", (jsonData["email"],))
-            warningData = cur.fetchone()
-            warning = warningData[0]
-            print(warning)
-
-            # if warning == 1:
-            #     print("no")
-
             cur.execute("SELECT * FROM avoidlist where email = ?", (jsonData["email"],))
             avoidData = cur.fetchone()
 
@@ -978,11 +970,8 @@ def getorders():
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
-            #email = request.args.get('email')
             cur.execute("SELECT * FROM orders")
-            #JOIN users on users.email = orders.email where orders.email = ?", (email,))
             ordersData = cur.fetchall()
-            print(ordersData)
 
             response = {}
             orders = []
@@ -1322,6 +1311,11 @@ def avoidaccount():
 
             cur.execute("UPDATE warnings set decision = 1 where id = ?", (jsonData["id"]))
             conn.commit()
+
+            cur.execute("SELECT count(decision) from warnings where email = ? and decision = 1", (jsonData["email"],))
+            warningData = cur.fetchone()
+            warning = warningData[0]
+            print(warning)
             
             cur.execute("INSERT INTO avoidlist (email) VALUES (?)", tuple(rowData))
             conn.commit()
