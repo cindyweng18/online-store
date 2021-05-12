@@ -31,12 +31,12 @@ CREATE TABLE Computer (
   id INT AUTO_INCREMENT,
   name TEXT,
   imageBase64 LONGTEXT,
-  parts TEXT,
+  type TEXT,
+--   parts TEXT,
   operating_system TEXT,
   main_purpose TEXT,
   architecture TEXT,
   price INT,
-  type TEXT,
   voting INT,
   discussion INT,
   PRIMARY KEY (id)
@@ -45,6 +45,7 @@ CREATE TABLE Computer (
 CREATE TABLE ComputerPartsCompany (
   id INT AUTO_INCREMENT,
   name TEXT,
+  password TEXT,
   complaintsreceived TEXT,
   email TEXT,
   PRIMARY KEY (id)
@@ -161,6 +162,14 @@ INTO TABLE parts
 FIELDS TERMINATED BY ',' 
 ignore 1 lines
 (id,name,type,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion_id,company_id)
+set id = null;
+
+
+LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/ComputerSystems1.csv' 
+INTO TABLE computer
+FIELDS TERMINATED BY ',' 
+ignore 1 lines
+(id,name,type,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion_id)
 set id = null;
 
 LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/ComputerSystems1.csv' 
