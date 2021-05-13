@@ -49,7 +49,11 @@ function ItemPart(props) {
             vote: vote
         })
         .then( async (response) => {
-            alert(response.data.Warning);
+            if (response.data.Warning) {
+                alert(response.data.Warning);
+            } else {
+                window.location.reload();
+            }
         })
         .catch(async (e) => setMessage("Something went wrong. Try again."));
     };

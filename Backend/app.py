@@ -965,7 +965,7 @@ def viewaccount():
             for vote in votesData:
                 voteOBJ = {}
                 voteOBJ["item_id"] = vote[1]
-                voteOBJ["vote"] = vote[4]
+                voteOBJ["vote"] = vote[5]
                 voteList.append(voteOBJ)
             response["userData"][0]["votesCasted"] = voteList
                 
@@ -1408,7 +1408,7 @@ def warnings():
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
-            cur.execute("UPDATE warnings set decision = 1 where id = ?", (jsonData["id"]))
+            cur.execute("UPDATE warnings set decision = 1 where id = ?", (jsonData["id"],))
             conn.commit()
 
             cur.execute("SELECT count(decision) from warnings where email = ? and decision = 1", (jsonData["email"],))
@@ -1470,7 +1470,7 @@ def popular():
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
-            cur.execute("SELECT computer.name,computer.price, computer.id,avg(vote) FROM computer join reviews on computer.id = reviews.item_id group by item_id order by avg(vote) DESC LIMIT 3")
+            cur.execute("SELECT computer.name,computer.imageBase64, computer.price, computer.id,avg(vote) FROM computer join reviews on computer.id = reviews.item_id group by item_id order by avg(vote) DESC LIMIT 3")
             popularData = cur.fetchall()
 
             response = {}
@@ -1478,8 +1478,9 @@ def popular():
             for order in popularData:
                 orderOBJ = {}
                 orderOBJ["name"] = order[0]
-                orderOBJ["price"] = order [1]
-                orderOBJ["id"] = order [2]
+                orderOBJ["imageBase64"] = order[1]
+                orderOBJ["price"] = order [2]
+                orderOBJ["id"] = order [3]
                 popular.append(orderOBJ)
             response["popularData"] = popular
 
