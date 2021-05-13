@@ -16,6 +16,8 @@ import Choices from "./Choices";
 import Computer from "./Computer";
 import Parts from "./Parts";
 import ItemPart from "./ItemPart";
+import Manager from "./Manager";
+import ComputerCompany from "./ComputerCompany";
 
 const Routes = () => {
   return (
@@ -29,13 +31,15 @@ const Routes = () => {
         <Route exact={true} path={"/employeelogin"} component={Employee} />
         <Route exact={true} path={"/delivery/:name"} component={Delivery} />
         <Route exact={true} path={"/clerk/:name"} component={Clerk} />
+        <Route exact={true} path={"/manager/:name"} component={Manager} />
+        <Route exact={true} path={"/computercompany/:name"} component={ComputerCompany} />
         <Route exact={true} path={"/checkout"} component={Checkout} />
         <Route exact={true} path={"/discussion"} component={Discussion} />
         <Route exact={true} path={"/:computer"} component={Choices} />
         <Route exact={true} path={"/parts/:os/:purpose/:arch/:type"} component={Parts} />
         <Route exact={true} path={"/:computer/:os/:purpose/:arch"} component={Computer} />
         <Route exact={true} path={"/parts/:id"} component={ItemPart} />
-        <Route exact={true} path={"/:computer/:os/:purpose/:arch/:name"} component={Item} />
+        <Route exact={true} path={"/computer/:id"} component={Item} />
       </Switch>
       </Context>
     </BrowserRouter>

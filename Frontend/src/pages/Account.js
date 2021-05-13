@@ -87,12 +87,14 @@ function Account(props) {
         .catch(async (e) => setMessage(e.response.data.message));
     };
 
+
     function editCreditCard(data) {
+        //console.log(data["expiryDate"].split(" / ").join("/"));
         axios.post('/editcreditcard', {
             name: name,
             number: data['cardNumber'],
             cvc: data['cvc'],
-            expirationDate: data['expiryDate'],
+            expirationDate: data['expiryDate'].split(" / ").join("/"),
             email: email
         }).then(
             window.location.reload())
@@ -154,13 +156,13 @@ function Account(props) {
                     <thead>
                         <tr>
                         <th> Home Address </th>
-                        <th>Change Home Address (Street Number and Name, APT/FL, City, State, ZIP Code)</th>
+                        {/* <th>Change Home Address (Street Number and Name, APT/FL, City, State, ZIP Code)</th> */}
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                         <td>{address}</td>
-                        <td>
+                        {/* <td>
                         <InputGroup className="mb-3">
                             <FormControl
                             placeholder="New Home Address (Street Number and Name, APT/FL, City, State, ZIP Code)"
@@ -173,7 +175,7 @@ function Account(props) {
                             <Button variant="outline-primary" type="submit" onClick={(e) => editAddress(address)}>Save</Button>
                             </InputGroup.Append>
                         </InputGroup>
-                        </td>
+                        </td> */}
                         </tr>
                     </tbody>
                     </Table>
@@ -299,7 +301,7 @@ function Account(props) {
                     <Table striped bordered hover>
                         <thead>
                             <tr>
-                            <th>Order Id</th>
+                            <th>Order #</th>
                             <th>Order Details</th>
                             <th>Order Total </th>
                             <th>Delivery Company</th>
@@ -310,7 +312,7 @@ function Account(props) {
                             {orders.map(item => 
                             <tr key={item.id}>
                                 <td> {item.id} </td>
-                                <td> {item.items} </td>
+                                <td> {item.items.split("[")[1].split("]")[0].replace(/"/g, " ")} </td>
                                 <td> {item.totalPrice} </td>
                                 <td> {item.delivery_company} </td>
                                 <td> {item.tracking_info} </td>

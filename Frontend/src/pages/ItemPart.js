@@ -56,7 +56,7 @@ function ItemPart(props) {
         axios
         .post("/addtocart", {
             email: email,
-            name: params.name.split("-").join(" "),
+            name: item['name'],
             price: item['price']
         })
         .then(async () => setShow(true))

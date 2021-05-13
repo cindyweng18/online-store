@@ -6,9 +6,10 @@ import axios from "axios";
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import { useState, useEffect} from "react";
+import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
 //import { useHistory } from 'react-router-dom';
 
-// TODO: Modify once backend is finished.
 function Item(props) {
     //const history = useHistory();
     const { params } = props.match;
@@ -18,6 +19,15 @@ function Item(props) {
     const {register, handleSubmit} = useForm();
     const user = localStorage.getItem("session");
     const email = localStorage.getItem("userEmail");
+    const [description, setDescription] = useState("");
+    const [vote, setVote] = useState(1);
+    const [discussion, setDiscussion] = useState([]);
+    const [parts, setParts] = useState({
+        Processor: "11th Gen Intel® Core™ i7 11700KF (8-Core, 16MB Cache, 3.6GHz to 5GHz w/Intel® Turbo Boost Max)",
+        GraphicsCard: "NVIDIA® GeForce® GTX 1650 SUPER™ 4GB GDDR6",
+        Memory: "8GB Single Channel DDR4 XMP at 3200MHz; up to 128GB (additional memory sold separately)",
+        HardDrive: "1TB 7200RPM SATA 6Gb/s"
+    });
 
     // Don't display 'Add to Cart' button if user not logged in
     var display = "none";
@@ -27,12 +37,14 @@ function Item(props) {
 
     // Customization, TODO: Continue fixing it
     const onSubmit = (d) => {
-        alert(JSON.stringify(d));
+        setParts(JSON.parse(JSON.stringify(d)));
     };
 
     useEffect(() => {
         const fetchData = async () => {
-            const getItem = await axios.get(`/viewcomputeritem?operating_system=${params.os}&main_purpose=${params.purpose}&architecture=${params.arch}&name=${params.name.split("-").join(" ")}&type=${params.computer}`);
+            const getItem = await axios.get(`/viewcomputeritem?item_id=${params.id}`);
+            //console.log(getItem.data['computerData']);
+            setDiscussion(getItem.data['computerData']['discussion'])
             setItem(getItem.data['computerData']);
         }
         fetchData();
@@ -44,7 +56,7 @@ function Item(props) {
         axios
         .post("/addtocart", {
             email: email,
-            name: params.name.split("-").join(" "),
+            name: item['name'],
             price: item['price']
         })
         .then(async () => setShow(true))
@@ -73,13 +85,13 @@ function Item(props) {
                 Picture of product
                 </div>
                 <div className="py-5 col">
-                    <h2> {params.name.split("-").join(" ")} </h2>
-                    <p> Voting: {item['voting']}/10 </p>
-                    <p className="card-text"> 11th Gen Intel® Core™ i7 11700KF (8-Core, 16MB Cache, 3.6GHz to 5GHz w/Intel® Turbo Boost Max) </p>
+                    <h2> {item.name} </h2>
+                    <p> Voting: {vote}/10 </p>
+                    <p className="card-text"> {parts['Processor']} </p>
                     <p className="card-text">Windows 10 Home 64-bit English </p>
-                    <p className="card-text"> NVIDIA® GeForce® GTX 1650 SUPER™ 4GB GDDR6 </p>
-                    <p className="card-text"> 8GB Single Channel DDR4 XMP at 3200MHz; up to 128GB (additional memory sold separately) </p>
-                    <p className="card-text">1TB 7200RPM SATA 6Gb/s </p>
+                    <p className="card-text"> {parts['GraphicsCard']} </p>
+                    <p className="card-text"> {parts['Memory']} </p>
+                    <p className="card-text">{parts['HardDrive']} </p>
                     <h4> ${item['price']} </h4>
                     <button type="button" className="btn btn-success" onClick={addToCart} style={{display: display}}> Add to Cart </button>
                 </div>
@@ -121,31 +133,31 @@ function Item(props) {
                 <h3>Processor</h3>
                 <div className="form-check">
                     <label > 
-                    <input {...register("Graphics Card", { required: true })} type="radio" value="AMD Radeon™ RX 6800 XT 16GB GDDR6 (OC Ready)" defaultChecked/>
+                    <input {...register("GraphicsCard", { required: true })} type="radio" value="AMD Radeon™ RX 6800 XT 16GB GDDR6 (OC Ready)" defaultChecked/>
                     AMD Radeon™ RX 6800 XT 16GB GDDR6 (OC Ready)
                     </label>
                 </div>
                 <div className="form-check">
                     <label > 
-                    <input {...register("Graphics Card", { required: true })} type="radio" value="NVIDIA® GeForce RTX™ 3070 8GB GDDR6"/>
+                    <input {...register("GraphicsCard", { required: true })} type="radio" value="NVIDIA® GeForce RTX™ 3070 8GB GDDR6"/>
                     NVIDIA® GeForce RTX™ 3070 8GB GDDR6
                     </label>
                 </div>
                 <div className="form-check">
                     <label > 
-                    <input {...register("Graphics Card", { required: true })} type="radio" value="NVIDIA® GeForce® RTX™ 2080 Ti 11GB GDDR6 (OC Ready)" />
+                    <input {...register("GraphicsCard", { required: true })} type="radio" value="NVIDIA® GeForce® RTX™ 2080 Ti 11GB GDDR6 (OC Ready)" />
                     NVIDIA® GeForce® RTX™ 2080 Ti 11GB GDDR6 (OC Ready)
                     </label>
                 </div>
                 <div className="form-check">
                     <label > 
-                    <input {...register("Graphics Card", { required: true })} type="radio" value="NVIDIA® GeForce RTX™ 3080 10GB GDDR6X" />
+                    <input {...register("GraphicsCard", { required: true })} type="radio" value="NVIDIA® GeForce RTX™ 3080 10GB GDDR6X" />
                     NVIDIA® GeForce RTX™ 3080 10GB GDDR6X
                     </label>
                 </div>
                 <div className="form-check">
                     <label > 
-                    <input {...register("Graphics Card", { required: true })} type="radio" value="NVIDIA® GeForce RTX™ 3090 24GB GDDR6X" />
+                    <input {...register("GraphicsCard", { required: true })} type="radio" value="NVIDIA® GeForce RTX™ 3090 24GB GDDR6X" />
                     NVIDIA® GeForce RTX™ 3090 24GB GDDR6X
                     </label>
                 </div>
@@ -199,25 +211,25 @@ function Item(props) {
                 <h3>Hard Drive</h3>
                 <div className="form-check">
                     <label > 
-                    <input {...register("Hard Drive", { required: true })} type="radio" value="512GB M.2 PCIe NVMe SSD (Boot) + 1TB 7200RPM SATA 6Gb/s" defaultChecked/>
+                    <input {...register("HardDrive", { required: true })} type="radio" value="512GB M.2 PCIe NVMe SSD (Boot) + 1TB 7200RPM SATA 6Gb/s" defaultChecked/>
                     512GB M.2 PCIe NVMe SSD (Boot) + 1TB 7200RPM SATA 6Gb/s
                     </label>
                 </div>
                 <div className="form-check">
                     <label > 
-                    <input {...register("Hard Drive", { required: true })} type="radio" value="512GB M.2 PCIe NVMe SSD (Boot) + 2TB 7200RPM SATA 6Gb/s (Storage)"/>
+                    <input {...register("HardDrive", { required: true })} type="radio" value="512GB M.2 PCIe NVMe SSD (Boot) + 2TB 7200RPM SATA 6Gb/s (Storage)"/>
                     512GB M.2 PCIe NVMe SSD (Boot) + 2TB 7200RPM SATA 6Gb/s (Storage)
                     </label>
                 </div>
                 <div className="form-check">
                     <label > 
-                    <input {...register("Hard Drive", { required: true })} type="radio" value="1TB M.2 PCIe NVMe SSD (Boot) + 1TB 7200RPM SATA 6Gb/s (Storage)" />
+                    <input {...register("HardDrive", { required: true })} type="radio" value="1TB M.2 PCIe NVMe SSD (Boot) + 1TB 7200RPM SATA 6Gb/s (Storage)" />
                     1TB M.2 PCIe NVMe SSD (Boot) + 1TB 7200RPM SATA 6Gb/s (Storage)
                     </label>
                 </div>
                 <div className="form-check">
                     <label > 
-                    <input {...register("Hard Drive", { required: true })} type="radio" value="1TB M.2 PCIe NVMe SSD (Boot) + 2TB 7200RPM SATA 6Gb/s (Storage)" />
+                    <input {...register("HardDrive", { required: true })} type="radio" value="1TB M.2 PCIe NVMe SSD (Boot) + 2TB 7200RPM SATA 6Gb/s (Storage)" />
                     1TB M.2 PCIe NVMe SSD (Boot) + 2TB 7200RPM SATA 6Gb/s (Storage)
                     </label>
                 </div>
@@ -227,7 +239,55 @@ function Item(props) {
               </form>
             </div>
             <div className="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-                Discussion
+            <div className="container">
+                <div className="row">
+                    <div className="col">
+                        <Card style={{ display: display, width: '20rem'}}>
+                            <Card.Header>Post A Discussion</Card.Header>
+                            <Card.Body>
+                                <Form>
+                                    <Form.Group controlId="exampleForm.ControlInput1">
+                                        <Form.Label>Email address</Form.Label>
+                                        <h6> {email} </h6>
+                                    </Form.Group>
+                                    <Form.Group controlId="exampleForm.ControlTextarea1">
+                                        <Form.Label>Description</Form.Label>
+                                        <Form.Control as="textarea" rows={3}  placeholder="Description" value={description} onChange={(e) => {setDescription(e.target.value)}}/>
+                                    </Form.Group>
+                                    <Form.Group controlId="exampleForm.ControlSelect1">
+                                        <Form.Label>Cast a Vote For This Item </Form.Label>
+                                        <Form.Control as="select" onChange={(e) => {setVote(e.target.value)}}>
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                        <option>4</option>
+                                        <option>5</option>
+                                        <option>6</option>
+                                        <option>7</option>
+                                        <option>8</option>
+                                        <option>9</option>
+                                        <option>10</option>
+                                        </Form.Control>
+                                    </Form.Group>
+                                    <Button variant="primary" type="submit">Post</Button>
+                                </Form>
+                            </Card.Body>
+                        </Card>
+                    </div>
+                    <div className="col">
+                        {discussion.map(item =>
+                        <Card key={item.commentId} style={{ width: '55rem' }}>
+                            <Card.Body>
+                                <Card.Title>{item.commenter}</Card.Title>
+                                <Card.Subtitle className="mb-2 text-muted">Vote: {item.vote}/10</Card.Subtitle>
+                                <Card.Text>{item.comment}</Card.Text>
+                            </Card.Body>
+                        </Card>
+                        
+                        )}
+                        </div>
+                        </div>
+                        </div>
             </div>
         </div>
 

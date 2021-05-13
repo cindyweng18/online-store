@@ -176,19 +176,20 @@ def clerklogin():
             jsonData = request.json
 
             rowData = [] # Data to be uploaded to database
-            rowData.append(jsonData["name"])
+            rowData.append(jsonData["email"])
             rowData.append(jsonData["password"])
             
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
-            cur.execute("SELECT * FROM clerk WHERE name = ? AND password = ? ",tuple(rowData))
+            cur.execute("SELECT * FROM clerk WHERE email= ? AND password = ? ",tuple(rowData))
             userData = cur.fetchone()
+            name = userData[2]
 
-            cur.execute("SELECT * FROM clerk WHERE name = ?",(jsonData["name"],))
+            cur.execute("SELECT * FROM clerk WHERE name = ?",(name,))
             peopleData = cur.fetchone()
 
-            cur.execute("SELECT * FROM ComplaintsFiled WHERE offender = ?", (jsonData["name"],))
+            cur.execute("SELECT * FROM ComplaintsFiled WHERE offender = ?", (name,))
             complaintsData = cur.fetchall()
 
             if userData is not None:
@@ -245,13 +246,15 @@ def managerlogin():
 
             cur.execute("SELECT * FROM manager WHERE email = ?",(jsonData["email"],))
             peopleData = cur.fetchone()
+            print(peopleData)
 
             if userData is not None:
                 response = {}
                 response["loginData"] = {}
                 response["verified"] = {}
                 response["verified"] = True
-                response["loginData"]["name"] = peopleData[1]
+                response["loginData"]["email"] = peopleData[1]
+                response["loginData"]["name"] = peopleData[2]
                 conn.close()
                 return build_actual_response(jsonify(response)), 200
             else:
@@ -276,18 +279,69 @@ def deliverylogin():
             jsonData = request.json
 
             rowData = [] # Data to be uploaded to database
-            rowData.append(jsonData["name"])
+            rowData.append(jsonData["email"])
             rowData.append(jsonData["password"])
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
-            cur.execute("SELECT * FROM deliverycompany WHERE name = ? AND password = ? ",tuple(rowData))
+            cur.execute("SELECT * FROM deliverycompany WHERE email = ? AND password = ? ",tuple(rowData))
             userData = cur.fetchone()
+            name = userData[1]
 
-            cur.execute("SELECT * FROM deliverycompany WHERE name = ?",(jsonData["name"],))
+            cur.execute("SELECT * FROM deliverycompany WHERE name = ?",(name,))
             peopleData = cur.fetchone()
 
-            cur.execute("SELECT * FROM ComplaintsFiled WHERE offender = ?", (jsonData["name"],))
+            cur.execute("SELECT * FROM ComplaintsFiled WHERE offender = ?", (name,))
+            complaintsData = cur.fetchall()
+
+            if userData is not None:
+                response = {}
+                response["loginData"] = {}
+                response["verified"] = {}
+                response["verified"] = True
+                response["loginData"]["name"] = peopleData[1]
+                complaintsList = []
+                for complaint in complaintsData:
+                    complaintsList.append(complaint[1])
+                response["loginData"]["complaintsList"] = complaintsList
+                conn.close()
+                return build_actual_response(jsonify(response)), 200
+            else:
+                conn.close()
+                raise Exception("Invalid name/password combination")
+            
+        except Exception as e:
+            body = {
+                'Error': "This name/password combination does not exist.",
+                "verified": False
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/computercompanylogin', methods = ['OPTIONS','POST'])
+@cross_origin()
+def computercompanylogin():
+    if request.method == "OPTIONS":
+        return build_preflight_response
+    elif request.method == "POST":
+        try: 
+            jsonData = request.json
+
+            rowData = [] # Data to be uploaded to database
+            rowData.append(jsonData["email"])
+            rowData.append(jsonData["password"])
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM ComputerPartsCompany WHERE email = ? AND password = ? ",tuple(rowData))
+            userData = cur.fetchone()
+            print(userData)
+            name = userData[1]
+
+            cur.execute("SELECT * FROM ComputerPartsCompany WHERE name = ?",(name,))
+            peopleData = cur.fetchone()
+
+            cur.execute("SELECT * FROM ComplaintsFiled WHERE offender = ?", (name,))
             complaintsData = cur.fetchall()
 
             if userData is not None:
@@ -1100,7 +1154,8 @@ def gethashtags():
                         'complainer' : item [1],
                         'complaint' : item [2],
                         'offender' : item [3],
-                        'email' : item[4]
+                        'email' : item[4],
+                        'defense': item[5]
                     }
                     complaint.append(complains)
 

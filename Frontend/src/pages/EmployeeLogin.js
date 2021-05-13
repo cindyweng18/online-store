@@ -8,7 +8,7 @@ import {Row, Col} from 'react-bootstrap';
 function Employee() {
 
     const history = useHistory();
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const [employee, setEmployee] = useState("");
@@ -16,6 +16,7 @@ function Employee() {
     const employees = [
         { name: "Store Clerk", value: "clerk" },
         { name: "Delivery Company", value: "delivery" },
+        { name: "Computer Company", value: "computer"},
         { name: "Manager", value: "manager" }
       ];
   
@@ -23,7 +24,7 @@ function Employee() {
       event.preventDefault();
       axios
       .post(`/${route}login`, {
-        name: username,
+        email: email,
         password: password,
       })
       .then(async (response) => {
@@ -48,10 +49,10 @@ function Employee() {
         <Form>
             <Form.Group as={Row} controlId="formHorizontalEmail">
                 <Form.Label column sm={5}>
-                Username
+                Email
                 </Form.Label>
                 <Col sm={10}>
-                <Form.Control type="username" placeholder="Username" onChange={e => setUsername(e.currentTarget.value)}/>
+                <Form.Control type="email" placeholder="Email" onChange={e => setEmail(e.currentTarget.value)}/>
                 </Col>
             </Form.Group>
 
