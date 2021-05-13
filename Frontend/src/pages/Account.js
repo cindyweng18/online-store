@@ -89,10 +89,12 @@ function Account(props) {
 
 
     function editCreditCard(data) {
-        //console.log(data["expiryDate"].split(" / ").join("/"));
+        // console.log(data["expiryDate"]);
+        console.log(9);
+        console.log(data['cardNumber'].split(" ").join(""))
         axios.post('/editcreditcard', {
             name: name,
-            number: data['cardNumber'],
+            number: data['cardNumber'].split(" ").join(""),
             cvc: data['cvc'],
             expirationDate: data['expiryDate'].split(" / ").join("/"),
             email: email

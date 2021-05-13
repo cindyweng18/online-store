@@ -1144,7 +1144,7 @@ def postdiscussion():
                 word1 = ''.join(word)
                 if word1 in rowData[3]:
                     badWord = "*"*len(word1)
-                    rowData[2] = rowData[3].replace(word1,badWord)
+                    rowData[3] = rowData[3].replace(word1,badWord)
                     cur.execute("INSERT INTO reviews (item_id,name,commenter,comment,vote) VALUES (?,?,?,?,?)", tuple(rowData))
                     cur.execute("INSERT INTO warnings (email) VALUES (?)", (jsonData["commenter"],))
                     conn.commit()
@@ -1179,6 +1179,9 @@ def gethashtags():
 
             cur.execute("SELECT * FROM ComplaintsFiled")
             complaints = cur.fetchall()
+
+            cur.execute("SELECT * FROM Warnings")
+            warnings = cur.fetchall()
 
             cur.execute("SELECT * FROM warnings")
             warningData = cur.fetchall()

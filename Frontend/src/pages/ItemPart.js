@@ -7,6 +7,7 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import { useState, useEffect} from "react";
+import Image from 'react-bootstrap/Image';
 
 function ItemPart(props) {
     const { params } = props.match;
@@ -16,6 +17,7 @@ function ItemPart(props) {
     const [description, setDescription] = useState("");
     const [vote, setVote] = useState(1);
     const [discussion, setDiscussion] = useState([]);
+    const [warning, setWarning] = useState("");
 
     const user = localStorage.getItem("session");
     const email = localStorage.getItem("userEmail");
@@ -46,9 +48,9 @@ function ItemPart(props) {
             comment: description,
             vote: vote
         })
-        .then(
-            window.location.reload()
-        )
+        .then( async (response) => {
+            alert(response.data.Warning);
+        })
         .catch(async (e) => setMessage("Something went wrong. Try again."));
     };
 
@@ -83,7 +85,7 @@ function ItemPart(props) {
         <div className="container">
             <div className="row">
                 <div className="py-5 col">
-                Picture of product
+                <Image src={`data:image/jpeg;base64,${item["imageBase64"]}`} style={{width: 325, height: 325, margin:"auto"}} alt={item.name}/>
                 </div>
                 <div className="py-5 col">
                     <h2> {item['name']} </h2>
@@ -143,6 +145,7 @@ function ItemPart(props) {
                                 <Card.Title>{item.commenter}</Card.Title>
                                 <Card.Subtitle className="mb-2 text-muted">Vote: {item.vote}/10</Card.Subtitle>
                                 <Card.Text>{item.comment}</Card.Text>
+                                <Card.Subtitle className="mb-2 text-muted">{warning}</Card.Subtitle>
                             </Card.Body>
                         </Card>
                         

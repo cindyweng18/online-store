@@ -8,6 +8,7 @@ import Button from 'react-bootstrap/Button';
 import { useState, useEffect} from "react";
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
+import Image from 'react-bootstrap/Image';
 //import { useHistory } from 'react-router-dom';
 
 function Item(props) {
@@ -97,7 +98,7 @@ function Item(props) {
         <div className="container">
             <div className="row">
                 <div className="py-5 col">
-                Picture of product
+                <Image src={`data:image/jpeg;base64,${item["imageBase64"]}`} style={{width: 325, height: 325, margin:"auto"}} alt={item.name}/>
                 </div>
                 <div className="py-5 col">
                     <h2> {item.name} </h2>
