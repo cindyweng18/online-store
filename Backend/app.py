@@ -1440,7 +1440,7 @@ def avoidaccount():
 
             rowData = []
             rowData.append(jsonData["email"])
-            rowData.append(jsonData["id"])
+            # rowData.append(jsonData["id"])
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()

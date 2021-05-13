@@ -38,11 +38,23 @@ function Manager(props) {
         .catch(async (e) => setMessage(e.response.data.message));
     }
 
+    const handleRemove = (event, email) => {
+        event.preventDefault();
+        axios.post("/avoidaccount", {
+            email: email,
+        })
+        .then(
+            setAlertHeading("Your Changes Has Been Saved!"),
+            setAlertBody("Your changes has been saved. This account was put in the avoid list. Thank you!"),
+            setShow(true))
+        .catch(async (e) => setMessage(e.response.data.message));
+    }
+
     useEffect(() => {
         const fetchData = async () => {
             const getComplaints = await axios.get("/getallcomplaints");
-            setComplaints(getComplaints.data['getAllComplaints']);
-            setWarnings(getComplaints.data['getAllWarnings'])
+            setComplaints(getComplaints.data['managerData']['complaintsData']);
+            setWarnings(getComplaints.data['managerData']['warningsData']);
         }
         fetchData();
     }, []);
@@ -70,6 +82,7 @@ function Manager(props) {
                         <th>Complaint</th>
                         <th>Defense</th>
                         <th>Action</th>
+                        <th>Remove</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -92,6 +105,7 @@ function Manager(props) {
                                         <Button variant="danger" type="submit">Remove</Button>
                                     </Form>
                                 </td>
+                                <td> <Button variant="danger" onClick={(e) => handleRemove(e, item.email)}>Remove</Button> </td>
                             </tr>
 
 
@@ -106,7 +120,7 @@ function Manager(props) {
                         <th>Warning #</th>
                         <th>Email</th>
                         <th>Reasoning</th>
-                        <th>Action</th>
+                        <th>Remove</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -115,15 +129,18 @@ function Manager(props) {
                                 <td> {item.id} </td>
                                 <td> {item.email} </td>
                                 <td>
+                                    <Form onSubmit={(e) => handleSubmit(e, item.id, item.offender)}>
                                     <InputGroup>
                                         <InputGroup.Prepend>
                                         <InputGroup.Text>Reason</InputGroup.Text>
                                         </InputGroup.Prepend>
-                                        <FormControl as="textarea" aria-label="With textarea" />
+                                        <FormControl as="textarea" aria-label="With textarea" value={reasoning} onChange={(e) => setReasoning(e.target.value)}/>
                                     </InputGroup>
                                     <Button variant="success">Stay</Button>
                                     <Button variant="danger">Remove</Button>
+                                    </Form>
                                 </td>
+                                <td> <Button variant="danger" onClick={(e) => handleRemove(e, item.email)}>Remove</Button> </td>
                             </tr>
 
 
