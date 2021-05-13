@@ -79,7 +79,6 @@ function Clerk(props) {
         <Table bordered hover>
             <thead>
                 <tr>
-                {/* <th> </th> */}
                 <th>Bid #</th>
                 <th>Delivery Company</th>
                 <th>Order #</th>

@@ -26,7 +26,7 @@ function Checkout() {
     const email = localStorage.getItem("userEmail");
     const user = localStorage.getItem("session").replace("-"," ");
 
-    console.log(money, method);
+   //console.log(money, method);
 
     // If user is not signed in, page shows nothing
     var display = "none";
@@ -54,7 +54,6 @@ function Checkout() {
             const getUser = await axios.get(`/viewaccount?email=${email}`);
             // Get cart items
             const getCart =  await axios.get(`/viewcart?email=${email}`);
-            
             setFirstName(getUser.data['userData'][0]['fullName'].split(" ")[0]);
             setLastName(getUser.data['userData'][0]['fullName'].split(" ")[1]);
             setCard(getUser.data['userData'][0]['creditCard']);
@@ -67,29 +66,41 @@ function Checkout() {
     
     }, [user, email]);
 
+    var itemList = [];
+    cart.forEach(item => itemList.push(item['name']));
+    //console.log(JSON.stringify(itemList));
+    // console.log(itemList);
+
     // Disables Buy button after click
     var btnRef = useRef();
     const onBtnClick = e => {
-        axios
-        .post("/checkout", {
-            customerName: user,
-            email: email,
-            totalPrice: total,
-            paymentMethod: method,
-        })
-        .then( async (response) => {
-            if (response.data.Error === 'True') {
-                console.log(response.data.Error);
-                setDisable(false);
-                setError(true);
-            } 
-            
-        })
-        .catch(async (e) => setMessage(e.response.data.message));
+        e.preventDefault();
+        if (method === 'card' && card === null) {
+            setError(true);
+        } else {        
+            axios
+            .post("/checkout", {
+                customerName: user,
+                email: email,
+                totalPrice: total,
+                itemList: JSON.stringify(itemList),
+                homeAddress: address,
+                paymentMethod: method,
+            })
+            .then( async (response) => {
+                if (response.data.Error === 'True') {
+                    console.log(response.data.Error);
+                    setDisable(false);
+                    setError(true);
+                } 
+                
+            })
+            .catch(async (e) => setMessage(e.response.data.message));
 
-        if(btnRef.current){
-          btnRef.current.setAttribute("disabled", "disabled");
-          setDisable(true);
+            if(btnRef.current){
+                btnRef.current.setAttribute("disabled", "disabled");
+                setDisable(true);
+            }
         }
       }
 
@@ -102,11 +113,11 @@ function Checkout() {
         <Nav />
         <div className="container" style={{display:display}}>
             <Alert show={disable} variant="success">
-                <Alert.Heading>Purchase Completed</Alert.Heading>
+                <Alert.Heading>Purchase Completed!</Alert.Heading>
                 <p>
                 Your purchase has been completed! Check your 'Past Purchases' to have your tracking information as soon as we finalize the shipping details. 
                 </p>
-                <p> Thank you for shopping at Online Store! </p>
+                <p> Thank you for shopping at DigiPower PC! </p>
                 <hr />
                 <div className="d-flex justify-content-end">
                 <Button onClick={() => goToAccount()} variant="outline-success">
@@ -118,7 +129,7 @@ function Checkout() {
             <Alert show={error} variant="danger">
                 <Alert.Heading>Oops! You got an error!</Alert.Heading>
                 <p>
-                It looks like you do not have enough money. Go to your Account Management to update your money.
+                It looks like you do not have enough money or a valid card. Go to your Account Management to update your payment method.
                 </p>
                 <hr />
                 <div className="d-flex justify-content-end">
@@ -146,7 +157,6 @@ function Checkout() {
                         <button type="button" className="btn-close" aria-label="Close" onClick={ () => {deleteProduct(item.name.split("-").join(" "))}}></button>
                         <div>
                             <h6 className="my-0"> {item.name.split("-").join(" ")} </h6>
-                            <small className="text-muted">Brief description</small>
                         </div>
                         <span className="text-muted">${item.price}</span> 
                         
@@ -184,9 +194,9 @@ function Checkout() {
                         </div>
                     </div>
 
-                    <Button onClick={() => goToAccount()} variant="link">
+                    {/* <Button onClick={() => goToAccount()} variant="link">
                         Address is not correct? Click here to change it.
-                    </Button>
+                    </Button> */}
 
 
                     <hr className="my-4" />

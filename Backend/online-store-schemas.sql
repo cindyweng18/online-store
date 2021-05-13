@@ -165,30 +165,30 @@ ignore 1 lines
 set id = null;
 
 
-LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/ComputerSystems1.csv' 
+LOAD DATA local INFILE '/Users/cindyweng/desktop/online-store/Backend/ComputerSystems1.csv' 
 INTO TABLE computer
 FIELDS TERMINATED BY ',' 
 ignore 1 lines
 (id,name,type,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion_id)
 set id = null;
 
-LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/ComputerSystems1.csv' 
+LOAD DATA local INFILE '/Users/cindyweng/desktop/online-store/Backend/ComputerSystems1.csv' 
 INTO TABLE computer 
 FIELDS TERMINATED BY ',' 
 ignore 1 lines
 (id,name,type,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion)
 set id = null;
 
-LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/TabooList.txt' 
+LOAD DATA local INFILE '/Users/cindyweng/desktop/online-store/Backend/TabooList.txt' 
 INTO TABLE TabooList 
 (word);
 
-INSERT INTO DeliveryCompany (name,password) VALUES ('Fedex','company1');
-INSERT INTO DeliveryCompany (name,password) VALUES ('UPS','company2');
+INSERT INTO DeliveryCompany (email,password, name) VALUES ('fedex@digipower.com', 'company1','Fedex');
+INSERT INTO DeliveryCompany (email,password, name) VALUES ('ups@digipower.com','company2', 'UPS');
 
-INSERT INTO Manager (email,password) VALUES ('sandra@gmail.com','manager1');
+INSERT INTO Manager (email,password, name) VALUES ('sandra@gmail.com','manager1', 'Sandra Doe');
 
 INSERT INTO Clerk (email,password, name) VALUES ('jack@gmail.com','clerk1','Jack Hernandez');
 
-INSERT INTO ComputerPartsCompany (name) VALUES ('Apple');
+INSERT INTO ComputerPartsCompany (email, name, password) VALUES ('apple@digipower.com','Apple', 'apple1');
 

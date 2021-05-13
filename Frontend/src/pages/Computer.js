@@ -11,6 +11,7 @@ function Computer(props) {
     useEffect(() => {
         const fetchData = async () => {
             const getItems = await axios.get(`/choosecomputer?operating_system=${params.os}&main_purpose=${params.purpose}&architecture=${params.arch}&type=${params.computer}`);
+            console.log(getItems.data)
             setItems(getItems.data['computerData']);
         }
         fetchData();
@@ -39,7 +40,7 @@ function Computer(props) {
                                 <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
 
                                     {items.map(item =>
-                                        <div className="col">
+                                        <div key={item.computerId} className="col">
                                             <div className="card shadow-sm">
                                                 <img src="..." className="card-img-top" alt="..." />
                                                 <div className="card-body">
@@ -53,7 +54,7 @@ function Computer(props) {
                                                     <p className="card-text"> Estimated Value: ${item.price}</p>
                                                     <div className="d-flex justify-content-between align-items-center">
                                                         <div className="btn-group">
-                                                            <a className="btn btn-primary" href={`/${params.computer}/${params.os}/${params.purpose}/${params.arch}/${item.name.split(" ").join("-")}`} role="button">Customize and Buy</a>
+                                                            <a className="btn btn-primary" href={`/computer/${item.computerId}`} role="button">Customize and Buy</a>
                                                         </div>
                                                     </div>
                                                 </div>
