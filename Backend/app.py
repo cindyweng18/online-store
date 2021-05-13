@@ -622,6 +622,36 @@ def editname():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
+@app.route('/editaddress', methods = ['OPTIONS', 'POST'])
+@cross_origin()
+def editaddress():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try:
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["homeAddress"])
+            rowData.append(jsonData["email"])
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("UPDATE users SET  homeaddress = ? WHERE email = ?", tuple(rowData))
+            conn.commit()
+            conn.close()
+
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Can't edit home address!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
 @app.route('/editpassword', methods = ['OPTIONS', 'POST'])
 @cross_origin()
 def editpassword():
@@ -1094,6 +1124,7 @@ def postdiscussion():
 
             rowData = []
             rowData.append(jsonData["item_id"]) 
+            rowData.append(jsonData["name"]) #item name 
             rowData.append(jsonData["commenter"]) #give me the users email please
             rowData.append(jsonData["comment"])
             rowData.append(jsonData["vote"])
@@ -1109,7 +1140,7 @@ def postdiscussion():
                 if word1 in rowData[2]:
                     badWord = "*"*len(word1)
                     rowData[2] = rowData[2].replace(word1,badWord)
-                    cur.execute("INSERT INTO reviews (item_id,commenter,comment,vote) VALUES (?,?,?,?)", tuple(rowData))
+                    cur.execute("INSERT INTO reviews (item_id,name,commenter,comment,vote) VALUES (?,?,?,?,?)", tuple(rowData))
                     cur.execute("INSERT INTO warnings (email) VALUES (?)", (jsonData["commenter"],))
                     conn.commit()
 
@@ -1117,7 +1148,7 @@ def postdiscussion():
                         "Warning" : "You have been issued a warning for your use of an inappropriate word!"
                     })) , 200
             
-            cur.execute("INSERT INTO Reviews (item_id,commenter,comment,vote) VALUES (?,?,?,?)", tuple(rowData))
+            cur.execute("INSERT INTO Reviews (item_id,name,commenter,comment,vote) VALUES (?,?,?,?,?)", tuple(rowData))
             conn.commit()
             conn.close()
 

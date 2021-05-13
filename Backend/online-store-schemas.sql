@@ -86,6 +86,7 @@ CREATE TABLE Parts (
 CREATE TABLE Reviews (
   id INT AUTO_INCREMENT,
   item_id INT,
+  name TEXT,
   commenter TEXT,
   comment TEXT,
   vote INT,
@@ -169,7 +170,7 @@ LOAD DATA local INFILE '/Users/cindyweng/desktop/online-store/Backend/ComputerSy
 INTO TABLE computer
 FIELDS TERMINATED BY ',' 
 ignore 1 lines
-(id,name,type,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion_id)
+(id,name,type,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion)
 set id = null;
 
 LOAD DATA local INFILE '/Users/cindyweng/desktop/online-store/Backend/ComputerSystems1.csv' 
