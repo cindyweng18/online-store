@@ -2,6 +2,7 @@ import Footer from "./Footer";
 import Nav from "./Nav";
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
+import Image from 'react-bootstrap/Image';
 
 function Computer(props) {
     // 'params' are the arguments given on the URL - os, purpose, arch - passed by Computer file
@@ -42,7 +43,7 @@ function Computer(props) {
                                     {items.map(item =>
                                         <div key={item.computerId} className="col">
                                             <div className="card shadow-sm">
-                                                <img src="..." className="card-img-top" alt="..." />
+                                                <Image src={`data:image/jpeg;base64,${item["imageBase64"]}`} style={{width: 325, height: 325, margin:"auto"}} alt={item.name}/>
                                                 <div className="card-body">
                                                     <h2> {item.name} </h2> 
                                                     

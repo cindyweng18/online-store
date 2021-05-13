@@ -2,6 +2,7 @@ import Footer from './Footer';
 import Nav from './Nav';
 import { useState, useEffect} from "react";
 import axios from "axios";
+import Image from 'react-bootstrap/Image';
 
 const Home = () => {
     const [item1, setItem1] = useState({});
@@ -32,6 +33,7 @@ const Home = () => {
             <div className="col">
                 <div className="card shadow-sm">
                     <div className="card-body">
+                    <Image src={`data:image/jpeg;base64,${item1["imageBase64"]}`} style={{width: 325, height: 325, margin:"auto"}} alt={item1.name}/>
                         <h2>{item1.name}</h2>
                         <p className="card-text"> CPU: {item1.cpu} </p>
                         <p className="card-text"> GPU: {item1.gpu} </p>
@@ -51,6 +53,7 @@ const Home = () => {
             <div className="col">
                 <div className="card shadow-sm">
                     <div className="card-body">
+                    <Image src={`data:image/jpeg;base64,${item2["imageBase64"]}`} style={{width: 325, height: 325, margin:"auto"}} alt={item2.name}/>
                         <h2>{item2.name}</h2>
                         <p className="card-text"> CPU: {item2.cpu} </p>
                         <p className="card-text"> GPU: {item2.gpu} </p>
@@ -70,6 +73,7 @@ const Home = () => {
                 <div className="col">
                     <div className="card shadow-sm">
                         <div className="card-body">
+                        <Image src={`data:image/jpeg;base64,${item3["imageBase64"]}`} style={{width: 325, height: 325, margin:"auto"}} alt={item3.name}/>
                             <h2>{item3.name}</h2>
                             <p className="card-text"> CPU: {item3.cpu} </p>
                             <p className="card-text"> GPU: {item3.gpu} </p>
