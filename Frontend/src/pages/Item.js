@@ -63,6 +63,21 @@ function Item(props) {
         .catch(async (e) => setMessage(e.response.data.message));
     }
 
+    const handleDiscussion = (event) => {
+        event.preventDefault();
+        axios.post(`/postdiscussion`,{
+            item_id: params.id,
+            name: item['name'],
+            commenter: email,
+            comment: description,
+            vote: vote
+        })
+        .then(
+            window.location.reload()
+        )
+        .catch(async (e) => setMessage("Something went wrong. Try again."));
+    };
+
 
     return (
         <> 
@@ -86,12 +101,14 @@ function Item(props) {
                 </div>
                 <div className="py-5 col">
                     <h2> {item.name} </h2>
-                    <p> Voting: {vote}/10 </p>
-                    <p className="card-text"> {parts['Processor']} </p>
-                    <p className="card-text">Windows 10 Home 64-bit English </p>
-                    <p className="card-text"> {parts['GraphicsCard']} </p>
-                    <p className="card-text"> {parts['Memory']} </p>
-                    <p className="card-text">{parts['HardDrive']} </p>
+                    <p> Voting: {item.voting}/10 </p>
+                    <p className="card-text"> CPU: {item.cpu} </p>
+                    <p className="card-text"> GPU: {item.gpu} </p>
+                    <p className="card-text"> Memory: {item.memory} </p>
+                    <p className="card-text"> Hard Drive: {item.harddrive} </p>
+                    <p className="card-text"> Monitor: {item.monitor} </p>
+                    <p className="card-text"> Keyboard: {item.keyboard} </p>
+                    <p className="card-text"> Mouse: {item.mouse} </p>
                     <h4> ${item['price']} </h4>
                     <button type="button" className="btn btn-success" onClick={addToCart} style={{display: display}}> Add to Cart </button>
                 </div>
@@ -245,7 +262,7 @@ function Item(props) {
                         <Card style={{ display: display, width: '20rem'}}>
                             <Card.Header>Post A Discussion</Card.Header>
                             <Card.Body>
-                                <Form>
+                                <Form onSubmit={(e) => handleDiscussion(e)}>
                                     <Form.Group controlId="exampleForm.ControlInput1">
                                         <Form.Label>Email address</Form.Label>
                                         <h6> {email} </h6>

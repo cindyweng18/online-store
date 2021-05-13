@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import axios from "axios";
 import Button from 'react-bootstrap/Button';
+import Image from 'react-bootstrap/Image'
 
 function Parts(props) {
     const { params } = props.match;
@@ -32,9 +33,8 @@ function Parts(props) {
                             <h2> Parts </h2>
                             <Button variant="link" onClick={() => {goToPart("CPU")}}> CPU </Button>
                             <Button variant="link" onClick={() => {goToPart("GPU")}}> GPU </Button>
-                            <Button variant="link" onClick={() => {goToPart("RAM")}}> RAM </Button>
-                            <Button variant="link" onClick={() => {goToPart("Hard Disk")}}> Hard Disk </Button>
-                            <Button variant="link" onClick={() => {goToPart("Battery")}}> Battery </Button>
+                            <Button variant="link" onClick={() => {goToPart("Memory")}}> Memory </Button>
+                            <Button variant="link" onClick={() => {goToPart("Harddisk")}}> Hard Disk </Button>
                             <Button variant="link" onClick={() => {goToPart("Monitor")}}> Monitor </Button>
                             <Button variant="link" onClick={() => {goToPart("Mouse")}}> Mouse </Button>
                             <Button variant="link" onClick={() => {goToPart("Keyboard")}}> Keyboard </Button>
@@ -46,9 +46,10 @@ function Parts(props) {
                                 <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
 
                                     {items.map(item =>
+                                        
                                         <div key={item.itemId} className="col">
                                             <div className="card shadow-sm">
-                                                <img src="..." className="card-img-top" alt="..." />
+                                                <Image src={`data:image/jpeg;base64,${item["imageBase64"]}`} style={{width: 325, height: 325, margin:"auto"}} alt={item.name}/>
                                                 <div className="card-body">
                                                     <h2> {item.name} </h2> 
                                                     <p className="card-text"> Estimated Value: ${item.price}</p>
