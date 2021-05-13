@@ -49,8 +49,6 @@ def createacccount():
             rowData.append(jsonData["email"])
             rowData.append(jsonData["password"])
             rowData.append(jsonData["homeAddress"])
-            #rowData.append(json.dumps([]))
-            #rowData.append(json.dumps([]))
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
@@ -510,7 +508,6 @@ def viewpartitem():
 
             cur.execute("SELECT * FROM Parts where id = ? ", (id,))
             partData = cur.fetchone()
-            print(partData)
 
             cur.execute("SELECT avg(vote) from reviews where item_id = ?", (id,))
             voteData = cur.fetchone()
@@ -524,7 +521,7 @@ def viewpartitem():
             
             cur.execute("SELECT * from reviews where item_id = ?", (id,))
             discussionData = cur.fetchall()
-            print(discussionData)
+
             reviews = []
             for review in discussionData:
                 reviewOBJ = {}
@@ -1092,7 +1089,7 @@ def postcomplaint():
             rowData = []
             rowData.append(jsonData["complainer"]) 
             rowData.append(jsonData["complaint"])  
-            rowData.append(jsonData["offender"]) 
+            rowData.append(jsonData["offender"]) # email of offender
             rowData.append(jsonData["email"]) 
 
             conn = mariadb.connect(**config)
@@ -1100,6 +1097,8 @@ def postcomplaint():
 
             cur.execute("INSERT INTO ComplaintsFiled (complainer,complaint,offender,email) VALUES (?,?,?,?)", tuple(rowData))
             conn.commit()
+
+            cur.execute("INSERT INTO warnings (email) VALUES (?)", (jsonData["offender"],))
 
             conn.close()
 
@@ -1137,9 +1136,9 @@ def postdiscussion():
 
             for word in tabooData:
                 word1 = ''.join(word)
-                if word1 in rowData[2]:
+                if word1 in rowData[3]:
                     badWord = "*"*len(word1)
-                    rowData[2] = rowData[2].replace(word1,badWord)
+                    rowData[2] = rowData[3].replace(word1,badWord)
                     cur.execute("INSERT INTO reviews (item_id,name,commenter,comment,vote) VALUES (?,?,?,?,?)", tuple(rowData))
                     cur.execute("INSERT INTO warnings (email) VALUES (?)", (jsonData["commenter"],))
                     conn.commit()
@@ -1380,9 +1379,9 @@ def choosebid():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
-@app.route('/avoidaccount', methods = ['OPTIONS','POST'])
+@app.route('/warnings', methods = ['OPTIONS','POST'])
 @cross_origin()
-def avoidaccount():
+def warnings():
     if request.method == 'OPTIONS':
         return build_preflight_response
     elif request.method == 'POST':
@@ -1403,9 +1402,40 @@ def avoidaccount():
             warningData = cur.fetchone()
             warning = warningData[0]
             print(warning)
-            
+
+            if warning == 3:
+                cur.execute("INSERT INTO avoidlist (email) VALUES (?)", tuple(rowData))
+                conn.commit()
+
+            return build_actual_response(jsonify({
+                "Status" : "1"
+            })) , 200
+        except Exception as e:
+            body = {
+                'Error': "Warning was not affected!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+@app.route('/avoidaccount', methods = ['OPTIONS','POST'])
+@cross_origin()
+def avoidaccount():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'POST':
+        try:
+            jsonData = request.json
+
+            rowData = []
+            rowData.append(jsonData["email"])
+            rowData.append(jsonData["id"])
+
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
             cur.execute("INSERT INTO avoidlist (email) VALUES (?)", tuple(rowData))
             conn.commit()
+
             conn.close()
             
             return build_actual_response(jsonify({
@@ -1413,10 +1443,47 @@ def avoidaccount():
             })) , 200
         except Exception as e:
             body = {
-                'Error': "Account was not deleted!"
+                'Error': "Account was not put in avoid list!"
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
+
+@app.route('/popular', methods = ['OPTIONS','GET'])
+@cross_origin()
+def popular():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'GET':
+        try:
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
+
+            cur.execute("SELECT computer.name,price,avg(vote) as total FROM computer join reviews on reviews.item_id = computer.id order by avg(vote) DESC limit 3")
+            popularData = cur.fetchall()
+            print(popularData)
+
+            response = {}
+            popular = []
+            for order in popularData:
+                orderOBJ = {}
+                orderOBJ["name"] = order[0]
+                orderOBJ["price"] = order [1]
+                popular.append(orderOBJ)
+            response["popularData"] = popular
+
+            conn.close()
+            return build_actual_response(jsonify(response))
+        except Exception as e:
+            body = {
+                'Error': "Can't view popular items!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
+
+
+
+
+
 
 if __name__ == '__main__':
     app.run()
