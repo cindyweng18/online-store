@@ -67,14 +67,14 @@ function Account(props) {
     };
 
     function editAddress(newAddress) {
-        // axios.post(`/editname`,{
-        //     fullName: newAddress,
-        //     email: email
-        // })
-        // .then(
-        //     localStorage.setItem("session", newAddress),
-        //     window.location.reload())
-        // .catch(async (e) => setMessage(e.response.data.message));
+        axios.post(`/editaddress`,{
+            homeAddress: newAddress,
+            email: email
+        })
+        .then(
+            // console.log(address))
+            window.location.reload())
+        .catch(async (e) => setMessage(e.response.data.message));
     };
 
     function editPassword(newPassword) {
@@ -156,13 +156,13 @@ function Account(props) {
                     <thead>
                         <tr>
                         <th> Home Address </th>
-                        {/* <th>Change Home Address (Street Number and Name, APT/FL, City, State, ZIP Code)</th> */}
+                        <th>Change Home Address (Street Number and Name, APT/FL, City, State, ZIP Code)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                         <td>{address}</td>
-                        {/* <td>
+                        <td>
                         <InputGroup className="mb-3">
                             <FormControl
                             placeholder="New Home Address (Street Number and Name, APT/FL, City, State, ZIP Code)"
@@ -175,7 +175,7 @@ function Account(props) {
                             <Button variant="outline-primary" type="submit" onClick={(e) => editAddress(address)}>Save</Button>
                             </InputGroup.Append>
                         </InputGroup>
-                        </td> */}
+                        </td>
                         </tr>
                     </tbody>
                     </Table>

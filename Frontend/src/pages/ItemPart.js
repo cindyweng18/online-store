@@ -41,6 +41,7 @@ function ItemPart(props) {
         event.preventDefault();
         axios.post(`/postdiscussion`,{
             item_id: params.id,
+            name: item['name'],
             commenter: email,
             comment: description,
             vote: vote

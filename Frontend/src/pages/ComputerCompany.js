@@ -61,7 +61,7 @@ function ComputerCompany(props) {
                 <tbody>
                     {complaints.map(item=>
                         <tr key={item}>
-                        <td> {item.complainId} </td>
+                        <td> {item.complaintId} </td>
                         <td> {item.complainer} </td>
                         <td> {item.complaint} </td>
                         <td>                
@@ -74,7 +74,7 @@ function ComputerCompany(props) {
                                 onChange={(e) => setDefense(e.target.value)}
                                 />
                                 <InputGroup.Append>
-                                <Button variant="outline-primary" onClick={(e) => handleDefense(e, item.complainId)}>Submit</Button>
+                                <Button variant="outline-primary" onClick={(e) => handleDefense(e, item.complaintId)}>Submit</Button>
                                 </InputGroup.Append>
                             </InputGroup>
                         </td>

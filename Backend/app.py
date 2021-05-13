@@ -204,7 +204,7 @@ def clerklogin():
                 for complaint in complaintsData:
                     complaintOBJ = {}
                     complaintOBJ["complainer"] = complaint[1]
-                    complaintOBJ["complaint"] = complaint [2]
+                    complaintOBJ["complaint"] = complaint[2]
                     complaintsList.append(complaintOBJ)
                 response["loginData"]["complaintsReceived"] = complaintsList
 
@@ -303,7 +303,7 @@ def deliverylogin():
                 complaintsList = []
                 for complaint in complaintsData:
                     complaintsList.append(complaint[1])
-                response["loginData"]["complaintsList"] = complaintsList
+                response["loginData"]["complaintsReceived"] = complaintsList
                 conn.close()
                 return build_actual_response(jsonify(response)), 200
             else:
@@ -343,6 +343,7 @@ def computercompanylogin():
 
             cur.execute("SELECT * FROM ComplaintsFiled WHERE offender = ?", (name,))
             complaintsData = cur.fetchall()
+            print(complaintsData)
 
             if userData is not None:
                 response = {}
@@ -352,8 +353,13 @@ def computercompanylogin():
                 response["loginData"]["name"] = peopleData[1]
                 complaintsList = []
                 for complaint in complaintsData:
-                    complaintsList.append(complaint[1])
-                response["loginData"]["complaintsList"] = complaintsList
+                    complaintOBJ = {}
+                    complaintOBJ["complaintId"] = complaint[0]
+                    complaintOBJ["complainer"] = complaint[1]
+                    complaintOBJ["complaint"] = complaint[2]
+                    complaintOBJ["offender"] = complaint[3]
+                    complaintsList.append(complaintOBJ)
+                response["loginData"]["complaintsReceived"] = complaintsList
                 conn.close()
                 return build_actual_response(jsonify(response)), 200
             else:
@@ -428,14 +434,15 @@ def builddesktop():
 
             cur.execute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? AND type = ? ", tuple(rowData))
             computerData = cur.fetchall()
-            print(computerData)
+            # print(computerData)
             response = {}
             parts = []
             for part in computerData:
+                #print(part[3])
                 partsOBJ = {}
                 partsOBJ["itemId"] = part[0]
                 partsOBJ["name"] = part[1]
-                partsOBJ["imageBase64"] = part[2]
+                partsOBJ["imageBase64"] = part[3]
                 partsOBJ["price"] = part[7]
                 partsOBJ["voting"] = part[8]
                 partsOBJ["discussion_id"] = part[9]
@@ -476,20 +483,33 @@ def choosecomputer():
             response = {}
             computers = []
             for computer in computerData:
-                computerOBJ = {}
-                computerOBJ["computerId"] = computer[0]
-                computerOBJ["name"] = computer[1].replace('"', "")
-                computerOBJ["imageBase64"] = computer[2]
-                computerOBJ["cpu"] = computer[7]
-                computerOBJ["memory"] = computer[8]
-                computerOBJ["harddrive"] = computer[9]
-                computerOBJ["gpu"] = computer[10]
-                computerOBJ["monitor"] = computer[11]
-                computerOBJ["keyboard"] = computer[12]
-                computerOBJ["mouse"] = computer[13]
-                computerOBJ["price"] = computer[14]
-                computerOBJ["voting"] = computer[15]
-                computerOBJ["discussion_id"] = computer[16]
+                if computer[3] == 'Laptop':
+                    computerOBJ = {}
+                    computerOBJ["computerId"] = computer[0]
+                    computerOBJ["name"] = computer[1].replace('"', "")
+                    computerOBJ["imageBase64"] = computer[2]
+                    computerOBJ["cpu"] = computer[7]
+                    computerOBJ["memory"] = computer[8]
+                    computerOBJ["harddrive"] = computer[9]
+                    computerOBJ["gpu"] = computer[10]
+                    computerOBJ["price"] = computer[14]
+                    computerOBJ["voting"] = computer[15]
+                    computerOBJ["discussion_id"] = computer[16]
+                else:
+                    computerOBJ = {}
+                    computerOBJ["computerId"] = computer[0]
+                    computerOBJ["name"] = computer[1].replace('"', "")
+                    computerOBJ["imageBase64"] = computer[2]
+                    computerOBJ["cpu"] = computer[7]
+                    computerOBJ["memory"] = computer[8]
+                    computerOBJ["harddrive"] = computer[9]
+                    computerOBJ["gpu"] = computer[10]
+                    computerOBJ["monitor"] = computer[11]
+                    computerOBJ["keyboard"] = computer[12]
+                    computerOBJ["mouse"] = computer[13]
+                    computerOBJ["price"] = computer[14]
+                    computerOBJ["voting"] = computer[15]
+                    computerOBJ["discussion_id"] = computer[16]
                 if computerOBJ not in computers:
                     computers.append(computerOBJ)
             response["computerData"] = computers
@@ -520,7 +540,7 @@ def viewpartitem():
             partData = cur.fetchone()
             print(partData)
 
-            cur.execute("SELECT avg(vote) from reviews where item_id = ?", (id,))
+            cur.execute("SELECT avg(vote) from reviews where item_id = ? AND name = ?", (id,partData[1]))
             voteData = cur.fetchone()
 
             response = {}
@@ -537,9 +557,9 @@ def viewpartitem():
             for review in discussionData:
                 reviewOBJ = {}
                 reviewOBJ["commentId"] = review[0]
-                reviewOBJ["commenter"] = review [2]
-                reviewOBJ["comment"] = review [3]
-                reviewOBJ["vote"] = review [4]
+                reviewOBJ["commenter"] = review[3]
+                reviewOBJ["comment"] = review[4]
+                reviewOBJ["vote"] = review[5]
                 reviews.append(reviewOBJ)
             response["partData"]["discussion"] = reviews
 
@@ -570,12 +590,35 @@ def viewcomputeritem():
             computerData = cur.fetchone()
             print(computerData)
 
+            cur.execute("SELECT avg(vote) from reviews where item_id = ? AND name = ?", (id,computerData[1].replace('"', "")))
+            voteData = cur.fetchone()
+
             response = {}
-            response["computerData"] = {}
-            response["computerData"]["name"] = computerData[1]
-            response["computerData"]["imageBase64"] = computerData[2]
-            response["computerData"]["price"] = computerData[7]
-            response["computerData"]["voting"] = computerData[9]
+            if computerData[3] == 'Laptop':
+                response["computerData"] = {}
+                response["computerData"]["computerId"] = computerData[0]
+                response["computerData"]["name"] = computerData[1].replace('"', "")
+                response["computerData"]["imageBase64"] = computerData[2]
+                response["computerData"]["cpu"] = computerData[7]
+                response["computerData"]["memory"] = computerData[8]
+                response["computerData"]["harddrive"] = computerData[9]
+                response["computerData"]["gpu"] = computerData[10]
+                response["computerData"]["price"] = computerData[14]
+                response["computerData"]["voting"] = 0 if voteData[0] is None else float(voteData[0])
+            else:
+                response["computerData"] = {}
+                response["computerData"]["computerId"] = computerData[0]
+                response["computerData"]["name"] = computerData[1].replace('"', "")
+                response["computerData"]["imageBase64"] = computerData[2]
+                response["computerData"]["cpu"] = computerData[7]
+                response["computerData"]["memory"] = computerData[8]
+                response["computerData"]["harddrive"] = computerData[9]
+                response["computerData"]["gpu"] = computerData[10]
+                response["computerData"]["monitor"] = computerData[11]
+                response["computerData"]["keyboard"] = computerData[12]
+                response["computerData"]["mouse"] = computerData[13]
+                response["computerData"]["price"] = computerData[14]
+                response["computerData"]["voting"] = 0 if voteData[0] is None else float(voteData[0])
 
             cur.execute("SELECT * from reviews where item_id = ?", (id,))
             discussionData = cur.fetchall()
@@ -583,9 +626,10 @@ def viewcomputeritem():
             reviews = []
             for review in discussionData:
                 reviewOBJ = {}
-                reviewOBJ["commenter"] = review [2]
-                reviewOBJ["comment"] = review [3]
-                reviewOBJ["vote"] = review [4]
+                reviewOBJ["commentId"] = review[0]
+                reviewOBJ["commenter"] = review[3]
+                reviewOBJ["comment"] = review[4]
+                reviewOBJ["vote"] = review[5]
                 reviews.append(reviewOBJ)
             response["computerData"]["discussion"] = reviews
 

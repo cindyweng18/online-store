@@ -16,7 +16,7 @@ function Employee() {
     const employees = [
         { name: "Store Clerk", value: "clerk" },
         { name: "Delivery Company", value: "delivery" },
-        { name: "Computer Company", value: "computer"},
+        { name: "Computer Company", value: "computercompany"},
         { name: "Manager", value: "manager" }
       ];
   
