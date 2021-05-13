@@ -194,9 +194,9 @@ function Checkout() {
                         </div>
                     </div>
 
-                    {/* <Button onClick={() => goToAccount()} variant="link">
+                    <Button onClick={() => goToAccount()} variant="link">
                         Address is not correct? Click here to change it.
-                    </Button> */}
+                    </Button>
 
 
                     <hr className="my-4" />
