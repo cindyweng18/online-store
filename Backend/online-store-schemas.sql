@@ -32,10 +32,16 @@ CREATE TABLE Computer (
   name TEXT,
   imageBase64 LONGTEXT,
   type TEXT,
---   parts TEXT,
   operating_system TEXT,
   main_purpose TEXT,
   architecture TEXT,
+  cpu TEXT,
+  memory TEXT,
+  harddrive TEXT,
+  gpu TEXT,
+  monitor TEXT,
+  keyboard TEXT,
+  mouse TEXT,
   price INT,
   voting INT,
   discussion INT,
@@ -158,7 +164,7 @@ CREATE TABLE warnings(
 );
 
 --CHANGE THE FILE TO WHERE THIS LOCAL FILE IS LOCATED
-LOAD DATA local INFILE '/Users/nour/GitProjects/online-store/Backend/CPUParts2.csv' 
+LOAD DATA local INFILE '/Users/cindyweng/desktop/online-store/Backend/CPUParts2.csv' 
 INTO TABLE parts 
 FIELDS TERMINATED BY ',' 
 ignore 1 lines
@@ -170,14 +176,7 @@ LOAD DATA local INFILE '/Users/cindyweng/desktop/online-store/Backend/ComputerSy
 INTO TABLE computer
 FIELDS TERMINATED BY ',' 
 ignore 1 lines
-(id,name,type,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion)
-set id = null;
-
-LOAD DATA local INFILE '/Users/cindyweng/desktop/online-store/Backend/ComputerSystems1.csv' 
-INTO TABLE computer 
-FIELDS TERMINATED BY ',' 
-ignore 1 lines
-(id,name,type,imageBase64,operating_system,main_purpose,architecture,price,voting,discussion)
+(name,imageBase64,type, operating_system,main_purpose,architecture,cpu,memory,harddrive,gpu,monitor,keyboard,mouse,price,voting,discussion)
 set id = null;
 
 LOAD DATA local INFILE '/Users/cindyweng/desktop/online-store/Backend/TabooList.txt' 
@@ -191,5 +190,5 @@ INSERT INTO Manager (email,password, name) VALUES ('sandra@gmail.com','manager1'
 
 INSERT INTO Clerk (email,password, name) VALUES ('jack@gmail.com','clerk1','Jack Hernandez');
 
-INSERT INTO ComputerPartsCompany (email, name, password) VALUES ('apple@digipower.com','Apple', 'apple1');
+INSERT INTO ComputerPartsCompany (email, name, password) VALUES ('computer@digipower.com','Computer Parts & Wholes', 'computer1');
 

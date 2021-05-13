@@ -472,16 +472,24 @@ def choosecomputer():
 
             cur.execute("SELECT * FROM computer where operating_system = ? AND main_purpose = ? AND architecture = ? AND type = ?", tuple(rowData))
             computerData = cur.fetchall()
+            print(computerData)
             response = {}
             computers = []
             for computer in computerData:
                 computerOBJ = {}
                 computerOBJ["computerId"] = computer[0]
-                computerOBJ["name"] = computer[1]
+                computerOBJ["name"] = computer[1].replace('"', "")
                 computerOBJ["imageBase64"] = computer[2]
-                computerOBJ["price"] = computer[7]
-                computerOBJ["voting"] = computer[9]
-                computerOBJ["discussion_id"] = computer[10]
+                computerOBJ["cpu"] = computer[7]
+                computerOBJ["memory"] = computer[8]
+                computerOBJ["harddrive"] = computer[9]
+                computerOBJ["gpu"] = computer[10]
+                computerOBJ["monitor"] = computer[11]
+                computerOBJ["keyboard"] = computer[12]
+                computerOBJ["mouse"] = computer[13]
+                computerOBJ["price"] = computer[14]
+                computerOBJ["voting"] = computer[15]
+                computerOBJ["discussion_id"] = computer[16]
                 if computerOBJ not in computers:
                     computers.append(computerOBJ)
             response["computerData"] = computers
