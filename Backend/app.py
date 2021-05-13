@@ -176,7 +176,6 @@ def clerklogin():
             rowData = [] # Data to be uploaded to database
             rowData.append(jsonData["email"])
             rowData.append(jsonData["password"])
-            
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
@@ -244,7 +243,6 @@ def managerlogin():
 
             cur.execute("SELECT * FROM manager WHERE email = ?",(jsonData["email"],))
             peopleData = cur.fetchone()
-            print(peopleData)
 
             if userData is not None:
                 response = {}
@@ -333,7 +331,6 @@ def computercompanylogin():
             cur = conn.cursor()
             cur.execute("SELECT * FROM ComputerPartsCompany WHERE email = ? AND password = ? ",tuple(rowData))
             userData = cur.fetchone()
-            print(userData)
             name = userData[1]
 
             cur.execute("SELECT * FROM ComputerPartsCompany WHERE name = ?",(name,))
@@ -341,7 +338,6 @@ def computercompanylogin():
 
             cur.execute("SELECT * FROM ComplaintsFiled WHERE offender = ?", (name,))
             complaintsData = cur.fetchall()
-            print(complaintsData)
 
             if userData is not None:
                 response = {}
@@ -386,8 +382,6 @@ def deliverycomplaints():
 
             cur.execute("SELECT * FROM ComplaintsFiled WHERE offender = ?", (name,))
             complaintsData = cur.fetchall()
-            print(complaintsData)
-
 
             response = {}
             response["deliveryData"] = {}
@@ -432,11 +426,10 @@ def builddesktop():
 
             cur.execute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? AND type = ? ", tuple(rowData))
             computerData = cur.fetchall()
-            # print(computerData)
+
             response = {}
             parts = []
             for part in computerData:
-                #print(part[3])
                 partsOBJ = {}
                 partsOBJ["itemId"] = part[0]
                 partsOBJ["name"] = part[1]
@@ -477,7 +470,7 @@ def choosecomputer():
 
             cur.execute("SELECT * FROM computer where operating_system = ? AND main_purpose = ? AND architecture = ? AND type = ?", tuple(rowData))
             computerData = cur.fetchall()
-            print(computerData)
+
             response = {}
             computers = []
             for computer in computerData:
@@ -585,7 +578,6 @@ def viewcomputeritem():
 
             cur.execute("SELECT * FROM computer where id = ? ", (id,))
             computerData = cur.fetchone()
-            print(computerData)
 
             cur.execute("SELECT avg(vote) from reviews where item_id = ? AND name = ?", (id,computerData[1].replace('"', "")))
             voteData = cur.fetchone()
@@ -619,7 +611,7 @@ def viewcomputeritem():
 
             cur.execute("SELECT * from reviews where item_id = ?", (id,))
             discussionData = cur.fetchall()
-            print(discussionData)
+
             reviews = []
             for review in discussionData:
                 reviewOBJ = {}
@@ -823,7 +815,6 @@ def deleteproduct():
 
             cur.execute("SELECT * FROM cart WHERE email = ?", (jsonData["email"],))
             cartData = cur.fetchall()
-            print(cartData)
 
             response = {}
             products = []
@@ -858,7 +849,6 @@ def addtocart():
             rowData.append(jsonData["email"])
             rowData.append(jsonData["name"])
             rowData.append(jsonData["price"])
-            print(rowData)
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
@@ -1017,7 +1007,6 @@ def checkout():
             rowData.append(jsonData["homeAddress"])
             rowData.append(jsonData["paymentMethod"])
             
-
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
@@ -1033,24 +1022,6 @@ def checkout():
                     cur.execute("INSERT INTO Orders (customerName,email,totalPrice,itemList,homeAddress) VALUES (?,?,?,?,?)", tuple(rowData))
                     conn.commit()
 
-                    # cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
-                    # product = cur.fetchone()
-                    # product = product[0]
-                    # result = json.loads(product)
-
-                    # cur.execute("SELECT max(id) from orders")
-                    # id = cur.fetchall()
-                    # id = id[0][0]
-                    # print(id)
-
-                    # result.append(id)
-                    # final = json.dumps(result)
-
-                    # productList = []
-                    # for product in result:
-                    #     cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
-                    #     conn.commit()
-                    
                     cur.execute("DELETE FROM cart where email = ?", (jsonData["email"],))
                     conn.commit()
                 else: 
@@ -1062,23 +1033,6 @@ def checkout():
                 cur.execute("INSERT INTO Orders (customerName,email, totalPrice, itemList, homeAddress) VALUES (?,?,?,?,?)", tuple(rowData))
                 conn.commit()
 
-                # cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
-                # product = cur.fetchone()
-                # product = product[0]
-                # result = json.loads(product)
-
-                # cur.execute("SELECT max(id) from orders")
-                # id = cur.fetchall()
-                # id = id[0][0]
-
-                # result.append(id)
-                # final = json.dumps(result)
-
-                # productList = []
-                # for product in result:
-                #     cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
-                #     conn.commit()
-                
                 cur.execute("DELETE FROM cart where email = ?", (jsonData["email"],))
                 conn.commit()
                 
@@ -1457,7 +1411,6 @@ def warnings():
             cur.execute("SELECT count(decision) from warnings where email = ? and decision = 1", (jsonData["email"],))
             warningData = cur.fetchone()
             warning = warningData[0]
-            print(warning)
 
             if warning == 3:
                 cur.execute("INSERT INTO avoidlist (email) VALUES (?)", tuple(rowData))
@@ -1504,37 +1457,37 @@ def avoidaccount():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
-# @app.route('/popular', methods = ['OPTIONS','GET'])
-# @cross_origin()
-# def popular():
-#     if request.method == 'OPTIONS':
-#         return build_preflight_response
-#     elif request.method == 'GET':
-#         try:
-#             conn = mariadb.connect(**config)
-#             cur = conn.cursor()
+@app.route('/popular', methods = ['OPTIONS','GET'])
+@cross_origin()
+def popular():
+    if request.method == 'OPTIONS':
+        return build_preflight_response
+    elif request.method == 'GET':
+        try:
+            conn = mariadb.connect(**config)
+            cur = conn.cursor()
 
-#             cur.execute("SELECT avg(vote) as total FROM reviews order by avg(vote) DESC limit 3")
-#             popularData = cur.fetchall()
-#             print(popularData)
+            cur.execute("SELECT computer.name,computer.price, computer.id,avg(vote) FROM computer join reviews on computer.id = reviews.item_id group by item_id order by avg(vote) DESC LIMIT 3")
+            popularData = cur.fetchall()
 
-#             response = {}
-#             popular = []
-#             for order in popularData:
-#                 orderOBJ = {}
-#                 orderOBJ["name"] = order[0]
-#                 #orderOBJ["price"] = order [1]
-#                 popular.append(orderOBJ)
-#             response["popularData"] = popular
+            response = {}
+            popular = []
+            for order in popularData:
+                orderOBJ = {}
+                orderOBJ["name"] = order[0]
+                orderOBJ["price"] = order [1]
+                orderOBJ["id"] = order [2]
+                popular.append(orderOBJ)
+            response["popularData"] = popular
 
-#             conn.close()
-#             return build_actual_response(jsonify(response))
-#         except Exception as e:
-#             body = {
-#                 'Error': "Can't view popular items!"
-#             }
-#             print("ERROR MSG:",str(e))
-#             return build_actual_response(jsonify(body)), 400
+            conn.close()
+            return build_actual_response(jsonify(response))
+        except Exception as e:
+            body = {
+                'Error': "Can't view popular items!"
+            }
+            print("ERROR MSG:",str(e))
+            return build_actual_response(jsonify(body)), 400
 
 if __name__ == '__main__':
     app.run()
