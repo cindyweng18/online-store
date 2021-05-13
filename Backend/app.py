@@ -1222,37 +1222,42 @@ def gethashtags():
         try:
             conn = mariadb.connect(**config)
             cur = conn.cursor()
+
             cur.execute("SELECT * FROM ComplaintsFiled")
             complaints = cur.fetchall()
 
-            if complaints is not None:
-                complaints = list(complaints)
-                conn.close()
+            cur.execute("SELECT * FROM warnings")
+            warningData = cur.fetchall()
 
-                complaint = []
-                for item in complaints:
-                    complains = {
-                        'id' : item [0],
-                        'complainer' : item [1],
-                        'complaint' : item [2],
-                        'offender' : item [3],
-                        'email' : item[4],
-                        'defense': item[5]
-                    }
-                    complaint.append(complains)
+            response = {}
+            complaint = []
+            response["managerData"] = {}
+            for issue in complaints:
+                issueOBJ = {}
+                issueOBJ["id"] = issue[0]
+                issueOBJ["complainer"] = issue[1]
+                issueOBJ["complaint"] = issue[2]
+                issueOBJ["offender"] = issue[3]
+                issueOBJ["email"] = issue[4]
+                issueOBJ["defense"] = issue[5]
+                complaint.append(issueOBJ)
+            response["managerData"]["complaintsData"] = complaint
 
-                body = {
-                    'getAllComplaints' : complaint
-                }
-            else:
-                body = {
-                    'getAllComplaints': []
-                }
-            return build_actual_response(jsonify(body)), 200
+            warnings = []
+            for warning in warningData:
+                warningOBJ = {}
+                warningOBJ["id"] = warning[0]
+                warningOBJ["email"] = warning[1]
+                warningOBJ["reasoning"] = warning[2]
+                warningOBJ["decision"] = warning[3]
+                warnings.append(warningOBJ)
+            response["managerData"]["warningsData"] = warnings
 
+            conn.close()
+            return build_actual_response(jsonify(response))
         except Exception as e:
             body = {
-                'Error': "Can't get all complaints!"
+                'Error': "Can't view complaints!"
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
@@ -1269,7 +1274,6 @@ def getbids():
 
             cur.execute("SELECT * FROM bids")
             bidsData = cur.fetchall()
-            print(bidsData)
 
             response = {}
             bids = []
@@ -1500,42 +1504,37 @@ def avoidaccount():
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
 
-@app.route('/popular', methods = ['OPTIONS','GET'])
-@cross_origin()
-def popular():
-    if request.method == 'OPTIONS':
-        return build_preflight_response
-    elif request.method == 'GET':
-        try:
-            conn = mariadb.connect(**config)
-            cur = conn.cursor()
+# @app.route('/popular', methods = ['OPTIONS','GET'])
+# @cross_origin()
+# def popular():
+#     if request.method == 'OPTIONS':
+#         return build_preflight_response
+#     elif request.method == 'GET':
+#         try:
+#             conn = mariadb.connect(**config)
+#             cur = conn.cursor()
 
-            cur.execute("SELECT computer.name,price,avg(vote) as total FROM computer join reviews on reviews.item_id = computer.id order by avg(vote) DESC limit 3")
-            popularData = cur.fetchall()
-            print(popularData)
+#             cur.execute("SELECT avg(vote) as total FROM reviews order by avg(vote) DESC limit 3")
+#             popularData = cur.fetchall()
+#             print(popularData)
 
-            response = {}
-            popular = []
-            for order in popularData:
-                orderOBJ = {}
-                orderOBJ["name"] = order[0]
-                orderOBJ["price"] = order [1]
-                popular.append(orderOBJ)
-            response["popularData"] = popular
+#             response = {}
+#             popular = []
+#             for order in popularData:
+#                 orderOBJ = {}
+#                 orderOBJ["name"] = order[0]
+#                 #orderOBJ["price"] = order [1]
+#                 popular.append(orderOBJ)
+#             response["popularData"] = popular
 
-            conn.close()
-            return build_actual_response(jsonify(response))
-        except Exception as e:
-            body = {
-                'Error': "Can't view popular items!"
-            }
-            print("ERROR MSG:",str(e))
-            return build_actual_response(jsonify(body)), 400
-
-
-
-
-
+#             conn.close()
+#             return build_actual_response(jsonify(response))
+#         except Exception as e:
+#             body = {
+#                 'Error': "Can't view popular items!"
+#             }
+#             print("ERROR MSG:",str(e))
+#             return build_actual_response(jsonify(body)), 400
 
 if __name__ == '__main__':
     app.run()
