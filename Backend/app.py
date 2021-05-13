@@ -176,7 +176,6 @@ def clerklogin():
             rowData = [] # Data to be uploaded to database
             rowData.append(jsonData["email"])
             rowData.append(jsonData["password"])
-            
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
@@ -244,7 +243,6 @@ def managerlogin():
 
             cur.execute("SELECT * FROM manager WHERE email = ?",(jsonData["email"],))
             peopleData = cur.fetchone()
-            print(peopleData)
 
             if userData is not None:
                 response = {}
@@ -333,7 +331,6 @@ def computercompanylogin():
             cur = conn.cursor()
             cur.execute("SELECT * FROM ComputerPartsCompany WHERE email = ? AND password = ? ",tuple(rowData))
             userData = cur.fetchone()
-            print(userData)
             name = userData[1]
 
             cur.execute("SELECT * FROM ComputerPartsCompany WHERE name = ?",(name,))
@@ -341,7 +338,6 @@ def computercompanylogin():
 
             cur.execute("SELECT * FROM ComplaintsFiled WHERE offender = ?", (name,))
             complaintsData = cur.fetchall()
-            print(complaintsData)
 
             if userData is not None:
                 response = {}
@@ -386,8 +382,6 @@ def deliverycomplaints():
 
             cur.execute("SELECT * FROM ComplaintsFiled WHERE offender = ?", (name,))
             complaintsData = cur.fetchall()
-            print(complaintsData)
-
 
             response = {}
             response["deliveryData"] = {}
@@ -432,11 +426,10 @@ def builddesktop():
 
             cur.execute("SELECT * FROM parts where operating_system = ? AND main_purpose = ? AND architecture = ? AND type = ? ", tuple(rowData))
             computerData = cur.fetchall()
-            # print(computerData)
+
             response = {}
             parts = []
             for part in computerData:
-                #print(part[3])
                 partsOBJ = {}
                 partsOBJ["itemId"] = part[0]
                 partsOBJ["name"] = part[1]
@@ -477,7 +470,7 @@ def choosecomputer():
 
             cur.execute("SELECT * FROM computer where operating_system = ? AND main_purpose = ? AND architecture = ? AND type = ?", tuple(rowData))
             computerData = cur.fetchall()
-            print(computerData)
+
             response = {}
             computers = []
             for computer in computerData:
@@ -585,7 +578,6 @@ def viewcomputeritem():
 
             cur.execute("SELECT * FROM computer where id = ? ", (id,))
             computerData = cur.fetchone()
-            print(computerData)
 
             cur.execute("SELECT avg(vote) from reviews where item_id = ? AND name = ?", (id,computerData[1].replace('"', "")))
             voteData = cur.fetchone()
@@ -619,7 +611,7 @@ def viewcomputeritem():
 
             cur.execute("SELECT * from reviews where item_id = ?", (id,))
             discussionData = cur.fetchall()
-            print(discussionData)
+
             reviews = []
             for review in discussionData:
                 reviewOBJ = {}
@@ -823,7 +815,6 @@ def deleteproduct():
 
             cur.execute("SELECT * FROM cart WHERE email = ?", (jsonData["email"],))
             cartData = cur.fetchall()
-            print(cartData)
 
             response = {}
             products = []
@@ -858,7 +849,6 @@ def addtocart():
             rowData.append(jsonData["email"])
             rowData.append(jsonData["name"])
             rowData.append(jsonData["price"])
-            print(rowData)
 
             conn = mariadb.connect(**config)
             cur = conn.cursor()
@@ -1017,7 +1007,6 @@ def checkout():
             rowData.append(jsonData["homeAddress"])
             rowData.append(jsonData["paymentMethod"])
             
-
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
@@ -1033,24 +1022,6 @@ def checkout():
                     cur.execute("INSERT INTO Orders (customerName,email,totalPrice,itemList,homeAddress) VALUES (?,?,?,?,?)", tuple(rowData))
                     conn.commit()
 
-                    # cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
-                    # product = cur.fetchone()
-                    # product = product[0]
-                    # result = json.loads(product)
-
-                    # cur.execute("SELECT max(id) from orders")
-                    # id = cur.fetchall()
-                    # id = id[0][0]
-                    # print(id)
-
-                    # result.append(id)
-                    # final = json.dumps(result)
-
-                    # productList = []
-                    # for product in result:
-                    #     cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
-                    #     conn.commit()
-                    
                     cur.execute("DELETE FROM cart where email = ?", (jsonData["email"],))
                     conn.commit()
                 else: 
@@ -1062,23 +1033,6 @@ def checkout():
                 cur.execute("INSERT INTO Orders (customerName,email, totalPrice, itemList, homeAddress) VALUES (?,?,?,?,?)", tuple(rowData))
                 conn.commit()
 
-                # cur.execute("SELECT purchaseHistory from users where email = ?", (jsonData["email"],))
-                # product = cur.fetchone()
-                # product = product[0]
-                # result = json.loads(product)
-
-                # cur.execute("SELECT max(id) from orders")
-                # id = cur.fetchall()
-                # id = id[0][0]
-
-                # result.append(id)
-                # final = json.dumps(result)
-
-                # productList = []
-                # for product in result:
-                #     cur.execute ("UPDATE users SET purchasehistory = ? WHERE email = ?", (json.dumps(result),jsonData["email"],))
-                #     conn.commit()
-                
                 cur.execute("DELETE FROM cart where email = ?", (jsonData["email"],))
                 conn.commit()
                 
@@ -1222,54 +1176,45 @@ def gethashtags():
         try:
             conn = mariadb.connect(**config)
             cur = conn.cursor()
+
             cur.execute("SELECT * FROM ComplaintsFiled")
             complaints = cur.fetchall()
-            print(complaints)
+
             cur.execute("SELECT * FROM Warnings")
             warnings = cur.fetchall()
-            print(warnings)
 
-            if complaints is not None:
-                complaints = list(complaints)
-                warnings = list(warnings)
-                conn.close()
+            cur.execute("SELECT * FROM warnings")
+            warningData = cur.fetchall()
 
-                complaint = []
-                warning = []
-                for item in complaints:
-                    complains = {
-                        'id' : item [0],
-                        'complainer' : item [1],
-                        'complaint' : item [2],
-                        'offender' : item [3],
-                        'email' : item[4],
-                        'defense': item[5]
-                    }
-                    complaint.append(complains)
+            response = {}
+            complaint = []
+            response["managerData"] = {}
+            for issue in complaints:
+                issueOBJ = {}
+                issueOBJ["id"] = issue[0]
+                issueOBJ["complainer"] = issue[1]
+                issueOBJ["complaint"] = issue[2]
+                issueOBJ["offender"] = issue[3]
+                issueOBJ["email"] = issue[4]
+                issueOBJ["defense"] = issue[5]
+                complaint.append(issueOBJ)
+            response["managerData"]["complaintsData"] = complaint
 
-                for item in warnings:
-                    
-                    warnings = {
-                        'id': item[0],
-                        'email': item[1],
-                        'reasoning': item[2],
-                        'decision': item[3]
-                    }
-                    warning.append(warnings)
-                body = {
-                    'getAllComplaints' : complaint,
-                    'getAllWarnings': warning
-                }
-            else:
-                body = {
-                    'getAllComplaints': [],
-                    'getAllWarnings': []
-                }
-            return build_actual_response(jsonify(body)), 200
+            warnings = []
+            for warning in warningData:
+                warningOBJ = {}
+                warningOBJ["id"] = warning[0]
+                warningOBJ["email"] = warning[1]
+                warningOBJ["reasoning"] = warning[2]
+                warningOBJ["decision"] = warning[3]
+                warnings.append(warningOBJ)
+            response["managerData"]["warningsData"] = warnings
 
+            conn.close()
+            return build_actual_response(jsonify(response))
         except Exception as e:
             body = {
-                'Error': "Can't get all complaints!"
+                'Error': "Can't view complaints!"
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
@@ -1286,7 +1231,6 @@ def getbids():
 
             cur.execute("SELECT * FROM bids")
             bidsData = cur.fetchall()
-            print(bidsData)
 
             response = {}
             bids = []
@@ -1470,7 +1414,6 @@ def warnings():
             cur.execute("SELECT count(decision) from warnings where email = ? and decision = 1", (jsonData["email"],))
             warningData = cur.fetchone()
             warning = warningData[0]
-            print(warning)
 
             if warning == 3:
                 cur.execute("INSERT INTO avoidlist (email) VALUES (?)", tuple(rowData))
@@ -1527,9 +1470,8 @@ def popular():
             conn = mariadb.connect(**config)
             cur = conn.cursor()
 
-            cur.execute("SELECT computer.name,price,avg(vote) as total FROM computer join reviews on reviews.item_id = computer.id order by avg(vote) DESC limit 3")
+            cur.execute("SELECT computer.name,computer.price, computer.id,avg(vote) FROM computer join reviews on computer.id = reviews.item_id group by item_id order by avg(vote) DESC LIMIT 3")
             popularData = cur.fetchall()
-            print(popularData)
 
             response = {}
             popular = []
@@ -1537,6 +1479,7 @@ def popular():
                 orderOBJ = {}
                 orderOBJ["name"] = order[0]
                 orderOBJ["price"] = order [1]
+                orderOBJ["id"] = order [2]
                 popular.append(orderOBJ)
             response["popularData"] = popular
 
@@ -1548,11 +1491,6 @@ def popular():
             }
             print("ERROR MSG:",str(e))
             return build_actual_response(jsonify(body)), 400
-
-
-
-
-
 
 if __name__ == '__main__':
     app.run()
